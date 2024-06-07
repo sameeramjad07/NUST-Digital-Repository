@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "${VITE_QALAM_API_NAME}/(.*)",
+            "destination": "${VITE_QALAM_BASE_URL}${VITE_QALAM_API_NAME}"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/"
+        }
+    ]
+}

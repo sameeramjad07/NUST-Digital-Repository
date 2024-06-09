@@ -1,7 +1,7 @@
 {
     "rewrites": [
         {
-            "source": "${VITE_QALAM_API_NAME}/:path*",
+            "source": "https://nust-digital-repository.vercel.app/:path*",
             "destination": "${VITE_QALAM_BASE_URL}/:path*"
         },
         {

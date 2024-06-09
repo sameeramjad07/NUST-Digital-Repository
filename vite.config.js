@@ -12,11 +12,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      [qalamApi]: {
-          target: baseUrl,
-          changeOrigin: true,
-          secure: false,
-        }
+      [qalamApi]: baseUrl,
       } 
   },
 })

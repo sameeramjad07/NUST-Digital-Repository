@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
-const baseUrl = import.meta.env.VITE_QALAM_BASE_URL;
+// const baseUrl = import.meta.env.VITE_QALAM_BASE_URL;
 const apiName = import.meta.env.VITE_QALAM_API_NAME;
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
@@ -21,7 +21,7 @@ const SearchBar = ({ onResults }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.get(`${baseUrl}${apiName}`, {
+      const response = await axios.get(apiName, {
         params: {
           alias: qalamAlias,
           auth: qalamAuth,

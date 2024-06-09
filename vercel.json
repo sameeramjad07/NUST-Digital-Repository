@@ -1,8 +1,8 @@
 {
     "rewrites": [
         {
-            "source": "/odoocms_api/:path(.*)",
-            "destination": "https://qalam.nust.edu.pk/odoocms_api/:path"
+            "source": "${VITE_QALAM_API_NAME}/:path*",
+            "destination": "${VITE_QALAM_BASE_URL}/:path*"
         },
         {
             "source": "/(.*)",

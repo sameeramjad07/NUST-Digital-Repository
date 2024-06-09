@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/odoocms_api/:path*",
-            "destination": "/api/proxy/odoocms_api/:path*"
+            "destination": "https://qalam.nust.edu.pk/api/proxy/odoocms_api/:path*"
         }
     ]
 }

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
-// const baseUrl = import.meta.env.VITE_QALAM_BASE_URL;
-const apiName = import.meta.env.VITE_QALAM_API_NAME;
+const baseUrl = import.meta.env.VITE_QALAM_BASE_URL;
+const api = import.meta.env.VITE_QALAM_API_NAME;
+const apiName = `${baseUrl}${api}`;
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 

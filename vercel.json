@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/odoocms_api/:path*",
-            "destination": "/api/proxy/:path*"
-          }
+            "destination": "/api/proxy/odoocms_api/:path*"
+        }
     ]
 }

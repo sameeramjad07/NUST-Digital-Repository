@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="mb-6 lg:mb-0">
             <a href="#" className="flex items-center">
               <img src={nustLogo} className="h-8 me-3" alt="RIC Logo" />
-              <span className="text-2xl font-semibold whitespace-nowrap">NUST Digital Research Repository</span>
+              <span className="sm:text-2xl text-xl font-semibold whitespace-nowrap">NUST Digital Research Repository</span>
             </a>
           </div>
           <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">

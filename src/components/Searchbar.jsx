@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
 
-const apiName = '/odoocms_api';
+const apiName = '/api/proxy/odoocms_api';
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 

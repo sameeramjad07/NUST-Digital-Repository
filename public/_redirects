@@ -1,1 +1,1 @@
-/odoocms_api/*    /.netlify/functions/proxy/:splat  200
+/api/proxy/*    /.netlify/functions/proxy/:splat  200

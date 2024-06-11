@@ -4,6 +4,10 @@ import Appbar from '../components/Appbar';
 import Footer from '../components/Footer';
 import axios from 'axios';
 
+const apiName = '/odoocms_api';
+const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
+const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
+
 const Publications = () => {
   const [publication, setPublication] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,10 +21,10 @@ const Publications = () => {
       setIsLoading(true);
       try {
         console.log('Fetching publication details for:', publicationId);
-        const response = await axios.get(`/odoocms_api`, {
+        const response = await axios.get(apiName, {
           params: {
-            alias: 'ric_expert_portal_journal_pub',
-            auth: 'fc22151322bfdd2c3f0626798c9198bc',
+            alias: qalamAlias,
+            auth: qalamAuth,
             rows: 1000,
             title: publicationId // Using publicationId as title for the search
           }

@@ -6,11 +6,11 @@
         },
         {
             "src": "/static/(.*)",
-            "dest": "/static/$1"
+            "dest": "/static/"
         },
         {
             "src": "/assets/(.*)",
-            "dest": "/assets/$1"
+            "dest": "/assets/"
         },
         {
             "src": "/(.*)",

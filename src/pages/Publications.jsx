@@ -7,8 +7,33 @@ import axios from 'axios';
 const sdgImages = import.meta.glob('/src/assets/sdgs/*.png', { eager: true });
 
 const apiName = '/odoocms_api';
+const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
+const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
+
+const fetchAuthorCode = async (name) => {
+  try {
+    const response = await axios.get(apiName, {
+      params: {
+        alias: qalamAuthorAlias,
+        auth: qalamAuthorAuth,
+        rows: 1000,
+        name: name
+      }
+    });
+
+    const data = response.data.ric_expert_portal_faculty_cards_json_data;
+    if (data.length > 0) {
+      return data[0].code;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching author code:', error);
+    return null;
+  }
+};
 
 const Publications = () => {
   const [publication, setPublication] = useState(null);
@@ -43,6 +68,19 @@ const Publications = () => {
         if (publicationData) {
           console.log('Publication found:', publicationData);
           setPublication(publicationData);
+
+          // Fetch author codes for NUST authors
+          const authorCodes = await Promise.all(
+            publicationData.author_ids.map(async author => {
+              if (author.affiliation.toLowerCase() === 'nust') {
+                const code = await fetchAuthorCode(author.name);
+                return { ...author, code: code };
+              }
+              return author;
+            })
+          );
+          setPublication({ ...publicationData, author_ids: authorCodes });
+        
         } else {
           console.error('Publication not found');
         }
@@ -96,9 +134,24 @@ const Publications = () => {
     );
   }
 
-  const authors = publication.all_author_compute
-    ? publication.all_author_compute.split(', ').join(', ')
-    : 'N/A';
+  const renderAuthors = () => {
+    return publication.author_ids.map(author => {
+      if (author.affiliation.toLowerCase() === 'nust' && author.code) {
+        return (
+          <a
+            key={author.id}
+            target="_blank"
+            href={`https://collaborate.nust.edu.pk/profile/${author.name.replace(' ', '%20')}/${author.code}`}
+            className="text-blue-700 hover:underline"
+          >
+            {author.name}
+          </a>
+        );
+      } else {
+        return author.name;
+      }
+    }).reduce((prev, curr) => [prev, ', ', curr]);
+  };
 
   return (
     <>
@@ -107,7 +160,7 @@ const Publications = () => {
         {publication.online_publication_date ? <i className='text-gray-500'>[Published on {publication.online_publication_date}]</i> : null }
         <h1 className="text-3xl font-bold mb-4">{publication.title}</h1>
         <p className="text-gray-600 mb-4">
-          By: {authors} - {publication.publication_year_compute || 'N/A'}
+          {renderAuthors()} - {publication.publication_year_compute || 'N/A'}
         </p>
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-2">Abstract</h2>

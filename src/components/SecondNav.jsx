@@ -6,7 +6,7 @@ const SecondNav = () => {
     <div className="bg-gray-700 p-6">
       <div className="container mx-auto py-4 flex justify-between items-center">
         {/* Preprint Server Name */}
-        <span className="text-white text-lg font-semibold md:text-2xl">NUST Digital Research Repository</span>
+        <span className="text-white font-semibold text-2xl">NUST Digital Research Repository</span>
         {/* Login and Signup Buttons */}
         {/* <div className="hidden md:flex items-center space-x-4"> */}
           {/* Login Button */}

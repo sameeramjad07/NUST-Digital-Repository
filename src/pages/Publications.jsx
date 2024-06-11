@@ -20,13 +20,14 @@ const Publications = () => {
     const fetchPublicationDetails = async () => {
       setIsLoading(true);
       try {
-        console.log('Fetching publication details for:', publicationId);
+        const decodedPublicationId = decodeURIComponent(publicationId);
+        console.log('Fetching publication details for:', decodedPublicationId);
         const response = await axios.get(apiName, {
           params: {
             alias: qalamAlias,
             auth: qalamAuth,
             rows: 1000,
-            title: publicationId // Using publicationId as title for the search
+            title: decodedPublicationId // Using publicationId as title for the search
           }
         });
 

@@ -129,7 +129,7 @@ const Publications = () => {
               <div className="flex flex-wrap">
                 {publication.sdgs.map(sdg => (
                   <div key={sdg.id} className="w-32 h-32 m-2">
-                    <img src={`/sdgs/sdg-${sdg.id}.png`} alt={sdg.name} className="w-full h-full" />
+                    <img src={`/src/assets/sdgs/sdg-${sdg.id}.png`} alt={sdg.name} className="w-full h-full" />
                   </div>
                 ))}
               </div>

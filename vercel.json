@@ -1,8 +1,8 @@
 {
-    "rewrites": [
+    "routes": [
         {
-            "source": "/odoocms_api/:path*",
-            "destination": "https://qalam.nust.edu.pk/odoocms_api/:path*"
+            "src": "/odoocms_api",
+            "dest": "https://qalam.nust.edu.pk"
         }
     ]
 }

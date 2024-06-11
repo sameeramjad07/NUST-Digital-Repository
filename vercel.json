@@ -1,8 +1,8 @@
 {
     "rewrites": [
         {
-            "source": "/odoocms_api",
-            "destination": "https://qalam.nust.edu.pk"
+            "source": "/odoocms_api/:path*",
+            "destination": "https://qalam.nust.edu.pk/odoocms_api/:path*"
         },
         {
             "source": "/(.*)",

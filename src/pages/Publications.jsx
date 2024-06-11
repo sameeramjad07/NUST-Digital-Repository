@@ -98,8 +98,20 @@ const Publications = () => {
     }
   }, [publicationId, navigate]);
 
+  const formatAuthorName = (authorName) => {
+    const nameParts = authorName.trim().split(' ');
+    const lastName = nameParts.pop();
+    const initials = nameParts.map(name => name.charAt(0).toUpperCase()).join('. ');
+    return `${lastName}, ${initials}${initials ? '.' : ''}`;
+  };
+
+  const formattedAuthors = publication?.all_author_compute
+    .split(',')
+    .map(author => formatAuthorName(author.trim()))
+    .join(', ');
+
   const handleCopyCitation = () => {
-    const citationText = `${publication.all_author_compute}. ${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`;
+    const citationText = `${formattedAuthors}. ${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`;
     navigator.clipboard.writeText(citationText)
       .then(() => {
         setIsCitationCopied(true);
@@ -205,7 +217,7 @@ const Publications = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
               <h2 className="text-xl font-bold mb-4">Citation Details</h2>
-              <p className="mb-4">{`${publication.all_author_compute}. ${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
+              <p className="mb-4">{`${formattedAuthors}. ${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
               <button
                 onClick={handleCopyCitation}
                 className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}

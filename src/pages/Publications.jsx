@@ -4,6 +4,8 @@ import Appbar from '../components/Appbar';
 import Footer from '../components/Footer';
 import axios from 'axios';
 
+const sdgImages = import.meta.glob('/src/assets/sdgs/*.png', { eager: true });
+
 const apiName = '/odoocms_api';
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
@@ -129,7 +131,7 @@ const Publications = () => {
               <div className="flex flex-wrap">
                 {publication.sdgs.map(sdg => (
                   <div key={sdg.id} className="w-32 h-32 m-2">
-                    <img src={`/src/assets/sdgs/sdg-${sdg.id}.png`} alt={sdg.name} className="w-full h-full" />
+                    <img src={sdgImages[`/src/assets/sdgs/sdg-${sdg.id}.png`].default} alt={sdg.name} className="w-full h-full" />
                   </div>
                 ))}
               </div>

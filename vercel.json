@@ -5,8 +5,8 @@
             "dest": "https://qalam.nust.edu.pk"
         },
         {
-            "source": "/(.*)",
-            "destination": "/"
+            "src": "/(.*)",
+            "dest": "/"
         }
     ]
 }

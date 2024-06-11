@@ -3,9 +3,7 @@
         {
             "src": "/odoocms_api",
             "dest": "https://qalam.nust.edu.pk"
-        }
-    ],
-    "rewrites": [
+        },
         {
             "source": "/(.*)",
             "destination": "/"

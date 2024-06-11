@@ -1,8 +1,12 @@
 {
-    "redirects": [
+    "routes": [
         {
-            "source": "/odoocms_api",
-            "destination": "https://qalam.nust.edu.pk"
+            "src": "/odoocms_api",
+            "dest": "https://qalam.nust.edu.pk"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/"
         }
     ]
 }

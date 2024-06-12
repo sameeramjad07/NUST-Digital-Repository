@@ -111,7 +111,7 @@ const Publications = () => {
     .join(', ');
 
   const handleCopyCitation = () => {
-    const citationText = `${formattedAuthors}. ${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`;
+    const citationText = `${formattedAuthors} ${publication.title}, ${publication.journal_title} (${publication.publication_year_compute}), ${publication.journal_info}`;
     navigator.clipboard.writeText(citationText)
       .then(() => {
         setIsCitationCopied(true);

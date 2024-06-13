@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Appbar from '../components/Appbar';
+// import Appbar from '../components/Appbar';
+import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import axios from 'axios';
 
@@ -108,7 +109,8 @@ const Publications = () => {
   const formattedAuthors = publication?.all_author_compute
     .split(',')
     .map(author => formatAuthorName(author.trim()))
-    .join(', ');
+    .join(', ')
+    .replace(/, ([^,]*)$/, ' $1');
 
   const handleCopyCitation = () => {
     const citationText = `${formattedAuthors} ${publication.title}, ${publication.journal_title} (${publication.publication_year_compute}), ${publication.journal_info}`;
@@ -125,7 +127,7 @@ const Publications = () => {
   if (isLoading) {
     return (
       <>
-        <Appbar />
+        <TopNav />
         <div className="flex justify-center items-center h-screen">
           <p>Loading publication details...</p>
         </div>
@@ -137,7 +139,7 @@ const Publications = () => {
   if (!publication) {
     return (
       <>
-        <Appbar />
+        <TopNav />
         <div className="flex justify-center items-center h-screen">
           <p>Publication not found!</p>
         </div>
@@ -167,7 +169,7 @@ const Publications = () => {
 
   return (
     <>
-      <Appbar />
+      <TopNav />
       <div className="container mx-auto px-4 py-8">
         {publication.online_publication_date ? <i className='text-gray-500'>[Published on {publication.online_publication_date}]</i> : null }
         <h1 className="text-3xl font-bold mb-4">{publication.title}</h1>
@@ -176,18 +178,19 @@ const Publications = () => {
         </p>
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-2">Abstract</h2>
-          <p className="text-gray-700">{publication.abstract || 'No abstract available.'}</p>
+          <p className="text-gray-700 text-justify">{publication.abstract || 'No abstract available.'}</p>
         </div>
         <div className="mb-4">
-          <h2 className="text-2xl font-semibold mb-2">Details</h2>
-          <p className="text-gray-700"><strong>Journal Title:</strong> {publication.journal_title}</p>
-          <p className="text-gray-700"><strong>Journal Information:</strong>{publication.journal_info}</p>
-          {publication.online_publication_date ? <p className="text-gray-700"><strong>Online publication date:</strong>{publication.online_publication_date}</p>  : null }
-          {publication.publication_date ? <p className="text-gray-700"><strong>Publication date:</strong>{publication.publication_date}</p> : null }
-          <p className="text-gray-700"><strong>Impact Factor:</strong> {publication.impact_factor}</p>
-          <p className="text-gray-700"><strong>WoS Quartile:</strong> {publication.int_quartiles}</p>
-          <p className="text-gray-700"><strong>Citations (Scopus):</strong> {publication.citation_count_scopus || 0}</p>
-          <p className="text-gray-700"><strong>Web Link:</strong> {publication.doi_info ? (
+          <h2 className="text-2xl font-semibold mb-4">Details</h2>
+          <p className="text-gray-700 mb-1"><strong>Document type:</strong> {publication.type}</p>
+          <p className="text-gray-700 mb-1"><strong>Journal Title:</strong> {publication.journal_title}</p>
+          <p className="text-gray-700 mb-1"><strong>Journal Information:</strong>{publication.journal_info}</p>
+          {publication.online_publication_date ? <p className="text-gray-700 mb-1"><strong>Online publication date:</strong>{publication.online_publication_date}</p>  : null }
+          {publication.publication_date ? <p className="text-gray-700 mb-1"><strong>Publication date:</strong>{publication.publication_date}</p> : null }
+          <p className="text-gray-700 mb-1"><strong>Impact Factor:</strong> {publication.impact_factor}</p>
+          <p className="text-gray-700 mb-1"><strong>WoS Quartile:</strong> {publication.int_quartiles}</p>
+          <p className="text-gray-700 mb-1"><strong>Citations (Scopus):</strong> {publication.citation_count_scopus || 0}</p>
+          <p className="text-gray-700 mb-4"><strong>Web Link:</strong> {publication.doi_info ? (
             <a href={`https://doi.org/${publication.doi_info}`} className="text-blue-600 hover:underline">{publication.doi_info}</a>
           ) : 'N/A'}</p>
           {publication.sdgs.length == 0 ? <div/> : <div className="mt-2 mb-8">
@@ -208,7 +211,7 @@ const Publications = () => {
 
         <button
           onClick={() => setShowCitation(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="mt-4 px-4 py-2 font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           Create Citation
         </button>
@@ -217,7 +220,7 @@ const Publications = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
               <h2 className="text-xl font-bold mb-4">Citation Details</h2>
-              <p className="mb-4">{`${formattedAuthors}. ${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
+              <p className="mb-4">{`${formattedAuthors}${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
               <button
                 onClick={handleCopyCitation}
                 className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}

@@ -1,13 +1,14 @@
 import React from 'react';
-import Appbar from '../components/Appbar';
+// import Appbar from '../components/Appbar';
+import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import { FiMapPin, FiMail } from 'react-icons/fi'; // Icons for location and mail
 
 const ContactUs = () => {
   return (
     <>
-      <Appbar />
-      <div className="container px-12 py-8 ">
+      <TopNav />
+      <div className="container mx-auto px-12 py-8 ">
         <h1 className="text-5xl font-bold mb-4 text-center">Contact Us</h1>
 
         <div className="flex justify-center mb-8">

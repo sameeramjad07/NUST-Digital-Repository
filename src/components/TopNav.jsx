@@ -10,7 +10,7 @@ const TopNav = () => {
   };
 
   return (
-    <header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-white border-gray-200 dark:bg-gray-900 py-6">
+    <header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full border-gray-200 bg-gray-900 py-6">
       <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between" aria-label="Global">
         <div className="flex items-center justify-between">
           <a className="inline-flex items-center space-x-3 rtl:space-x-reverse" href="/">
@@ -41,9 +41,9 @@ const TopNav = () => {
           <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5">
             <Link to="/" className="font-medium text-blue-700 md:text-blue-700 dark:text-white md:dark:text-blue-500 block py-2 px-3 rounded md:p-0" aria-current="page">Home</Link>
             <Link to="/about" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">About</Link>
-            <Link to="/help" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Help</Link>
-            <Link to="/categories" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Categories</Link>
-            <Link to="/contact" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Contact</Link>
+            {/* <Link to="/help" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Help</Link>
+            <Link to="/categories" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Categories</Link> */}
+            <Link to="/contact" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Contact Us</Link>
           </div>
         </div>
       </nav>

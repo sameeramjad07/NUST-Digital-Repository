@@ -1,16 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
+import debounce from 'lodash.debounce';
 
 const apiName = '/odoocms_api';
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
+const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
+const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
 
 const SearchBar = ({ onResults }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('title');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authorSuggestions, setAuthorSuggestions] = useState([]);
+  const [selectedAuthor, setSelectedAuthor] = useState(null);
+
+  useEffect(() => {
+    if (selectedCategory === 'author' && searchQuery.length > 2) {
+      fetchAuthorSuggestions(searchQuery);
+    }
+  }, [searchQuery]);
+
+  const fetchAuthorSuggestions = debounce(async (query) => {
+    try {
+      const response = await axios.get(apiName, {
+        params: {
+          alias: qalamAuthorAlias,
+          auth: qalamAuthorAuth,
+          rows: 1000,
+          name: query,
+        },
+      });
+      if (response && response.data) {
+        setAuthorSuggestions(response.data.ric_expert_portal_faculty_cards_json_data.slice(0, 6));
+      }
+    } catch (error) {
+      console.error('Error fetching author suggestions:', error);
+    }
+  }, 300);
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -21,24 +50,43 @@ const SearchBar = ({ onResults }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.get(apiName, {
-        params: {
-          alias: qalamAlias,
-          auth: qalamAuth,
-          rows: 1000,
-          [selectedCategory]: searchQuery,
-        },
-      });
-      if (response && response.data) {
-        onResults(response.data.ric_expert_portal_journal_pub_json_data);
-      } else {
-        console.error('Empty response or missing data:', response);
+      if (selectedCategory === 'title') {
+        const response = await axios.get(apiName, {
+          params: {
+            alias: qalamAlias,
+            auth: qalamAuth,
+            rows: 1000,
+            title: searchQuery,
+          },
+        });
+        if (response && response.data) {
+          onResults(response.data.ric_expert_portal_journal_pub_json_data);
+        }
+      } else if (selectedCategory === 'author' && selectedAuthor) {
+        const response = await axios.get(apiName, {
+          params: {
+            alias: qalamAlias,
+            auth: qalamAuth,
+            rows: 1000,
+            author_cmsid: selectedAuthor.code,
+          },
+        });
+        if (response && response.data) {
+          setSelectedAuthor(null);
+          onResults(response.data.ric_expert_portal_journal_pub_json_data);
+        }
       }
     } catch (error) {
       console.error('Error fetching search results:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAuthorSelect = (author) => {
+    setSelectedAuthor(author);
+    setSearchQuery(author.name);
+    setAuthorSuggestions([]);
   };
 
   const handleCategoryButtonClick = (e) => {
@@ -56,7 +104,7 @@ const SearchBar = ({ onResults }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="block w-full py-3 px-4 text-base text-gray-900 bg-gray-100 border border-gray-300 rounded-l focus:outline-none focus:bg-white focus:border-gray-500"
-            placeholder="Search for papers, articles, etc."
+            placeholder={selectedCategory === 'title' ? "Search for papers, articles, etc." : "Search by author name"}
             required
           />
           <button
@@ -87,7 +135,7 @@ const SearchBar = ({ onResults }) => {
 
       {isDropdownOpen && (
         <div className="absolute top-full right-0 w-full sm:w-1/3 mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
-          {['keyword', 'title', 'author', 'abstract'].map((category) => (
+          {['title', 'author'].map((category) => (
             <button
               key={category}
               type="button"
@@ -96,6 +144,20 @@ const SearchBar = ({ onResults }) => {
             >
               {category.charAt(0).toUpperCase() + category.slice(1)}
             </button>
+          ))}
+        </div>
+      )}
+
+      {selectedCategory === 'author' && authorSuggestions.length > 0 && selectedAuthor == null && (
+        <div className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          {authorSuggestions.map((author) => (
+            <div
+              key={author.code}
+              onClick={() => handleAuthorSelect(author)}
+              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+            >
+              {author.name}
+            </div>
           ))}
         </div>
       )}

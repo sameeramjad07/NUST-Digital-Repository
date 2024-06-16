@@ -8,6 +8,8 @@ const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
 const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
+const qalamConferenceAlias = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE;
+const qalamConferenceAuth = import.meta.env.VITE_QALAM_AUTH_CONFERENCE;
 
 const SearchBar = ({ onResults }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,24 +65,43 @@ const SearchBar = ({ onResults }) => {
           onResults(response.data.ric_expert_portal_journal_pub_json_data);
         }
       } else if (selectedCategory === 'author' && selectedAuthor) {
-        const response = await axios.get(apiName, {
-          params: {
-            alias: qalamAlias,
-            auth: qalamAuth,
-            rows: 1000,
-            author_cmsid: selectedAuthor.code,
-          },
-        });
-        if (response && response.data) {
-          setSelectedAuthor(null);
-          onResults(response.data.ric_expert_portal_journal_pub_json_data);
-        }
+        const [pubResponse, confResponse] = await Promise.all([
+          axios.get(apiName, {
+            params: {
+              alias: qalamAlias,
+              auth: qalamAuth,
+              rows: 1000,
+              author_cmsid: selectedAuthor.code,
+            },
+          }),
+          axios.get(apiName, {
+            params: {
+              alias: qalamConferenceAlias,
+              auth: qalamConferenceAuth,
+              rows: 250,
+              author_cmsid: selectedAuthor.code,
+            },
+          }),
+        ]);
+        const publications = pubResponse.data.ric_expert_portal_journal_pub_json_data || [];
+        const conferences = confResponse.data.ric_expert_portal_conference_pub_json_data || [];
+        const results = shuffleArray([...publications, ...conferences]);
+        setSelectedAuthor(null);
+        onResults(results);
       }
     } catch (error) {
       console.error('Error fetching search results:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   };
 
   const handleAuthorSelect = (author) => {

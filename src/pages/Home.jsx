@@ -36,8 +36,8 @@ const Home = () => {
       </div>
         <SearchBar onResults={handleResults} />
       <div className="space-y-6 p-4 mt-8 mx-10 flex-grow">
-        {currentPapers.map((paper) => (
-          <PaperCard key={paper.id} paper={paper} />
+        {currentPapers.map((paper, index) => (
+          <PaperCard key={paper.id} paper={paper} index={(currentPage - 1) * papersPerPage + index + 1} />
         ))}
       </div>
       {papers.length > 0 && (

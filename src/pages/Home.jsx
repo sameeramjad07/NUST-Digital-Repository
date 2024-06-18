@@ -4,15 +4,18 @@ import SearchBar from '../components/Searchbar';
 import Footer from '../components/Footer';
 import PaperCard from '../components/PaperCard';
 import Pagination from '../components/Pagination';
+import { generateExcel, downloadExcel } from '../utils/csvUtils';
 
 const Home = () => {
   const [papers, setPapers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [papersPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleResults = (results) => {
+  const handleResults = (results, query) => {
     console.log('Search Results:', results);
     setPapers(results);
+    setSearchQuery(query);
   };
 
   const indexOfLastPaper = currentPage * papersPerPage;
@@ -20,6 +23,11 @@ const Home = () => {
   const currentPapers = papers.slice(indexOfFirstPaper, indexOfLastPaper);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleDownload = () => {
+    const wb = generateExcel(papers, searchQuery);
+    downloadExcel(wb);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -35,9 +43,23 @@ const Home = () => {
         </p>
       </div>
         <SearchBar onResults={handleResults} />
+        {papers.length > 0 && (
+          <div className="mt-4 mx-10 flex justify-end">
+            <button
+              onClick={handleDownload}
+              className="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2"
+            >
+              Download Results
+            </button>
+          </div>
+        )}
       <div className="space-y-6 p-4 mt-8 mx-10 flex-grow">
         {currentPapers.map((paper, index) => (
-          <PaperCard key={paper.id} paper={paper} index={(currentPage - 1) * papersPerPage + index + 1} />
+          <PaperCard 
+            key={paper.id} 
+            paper={paper} 
+            index={(currentPage - 1) * papersPerPage + index + 1} 
+          />
         ))}
       </div>
       {papers.length > 0 && (

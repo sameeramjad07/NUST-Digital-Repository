@@ -62,7 +62,7 @@ const SearchBar = ({ onResults }) => {
           },
         });
         if (response && response.data) {
-          onResults(response.data.ric_expert_portal_journal_pub_json_data);
+          onResults(response.data.ric_expert_portal_journal_pub_json_data, searchQuery);
         }
       } else if (selectedCategory === 'author' && selectedAuthor) {
         const [pubResponse, confResponse] = await Promise.all([
@@ -87,7 +87,7 @@ const SearchBar = ({ onResults }) => {
         const conferences = confResponse.data.ric_expert_portal_conference_pub_json_data || [];
         const results = shuffleArray([...publications, ...conferences]);
         setSelectedAuthor(null);
-        onResults(results);
+        onResults(results, searchQuery);
       }
     } catch (error) {
       console.error('Error fetching search results:', error);

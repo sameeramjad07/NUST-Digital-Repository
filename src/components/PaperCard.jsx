@@ -1,37 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
-const apiName = '/odoocms_api';
-const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
-const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
-
-const fetchAuthorCode = async (name) => {
-  try {
-    const response = await axios.get(apiName, {
-      params: {
-        alias: qalamAuthorAlias,
-        auth: qalamAuthorAuth,
-        rows: 1000,
-        name: name
-      }
-    });
-
-    const data = response.data.ric_expert_portal_faculty_cards_json_data;
-    if (data.length > 0) {
-      return data[0].code;
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error('Error fetching author code:', error);
-    return null;
-  }
-};
 
 const PaperCard = ({ paper, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [authorLinks, setAuthorLinks] = useState([]);
+  const [showCitation, setShowCitation] = useState(false);
+  const [isCitationCopied, setIsCitationCopied] = useState(false);
 
   const isConference = paper.conference !== null && paper.conference !== undefined;
 
@@ -40,41 +14,69 @@ const PaperCard = ({ paper, index }) => {
   };
 
   useEffect(() => {
-    const fetchAuthorLinks = async () => {
-      const links = await Promise.all(
-        paper.author_ids.map(async (author) => {
-          if (author.affiliation.toLowerCase() === 'nust') {
-            const code = await fetchAuthorCode(author.name);
-            if (code) {
-              return (
-                <a
-                  key={author.id}
-                  target="_blank"
-                  href={`https://collaborate.nust.edu.pk/profile/${author.name.replace(' ', '%20')}/${code}`}
-                  className="text-blue-700 hover:underline"
-                >
-                  {author.name}
-                </a>
-              );
-            }
+    const fetchAuthorLinks = () => {
+      const authors = paper.author_ids || paper.findet_ids;
+      const links = authors.map((author) => {
+        const name = author.name || author.pc_applicant_name;
+        if (author.affiliation && author.affiliation.toLowerCase() === 'nust' && author.faculty_student_author_compute) {
+          const parts = author.faculty_student_author_compute.split(' - ');
+          if (parts.length > 1) {
+            const code = parts[0];
+            return (
+              <a
+                key={author.id}
+                target="_blank"
+                href={`https://collaborate.nust.edu.pk/profile/${name.replace(' ', '%20')}/${code}`}
+                className="text-blue-700 hover:underline"
+              >
+                {name}
+              </a>
+            );
           }
-          return author.name;
-        })
-      );
+        }
+        return name;
+      });
       setAuthorLinks(links);
     };
 
     fetchAuthorLinks();
-  }, [paper.author_ids]);
+  }, [paper.author_ids, paper.findet_ids]);
+
+  const formatAuthorName = (authorName) => {
+    const nameParts = authorName.trim().split(' ');
+    const lastName = nameParts.pop();
+    const initials = nameParts.map(name => name.charAt(0).toUpperCase()).join('. ');
+    return `${lastName}, ${initials}${initials ? '.' : ''}`;
+  };
+
+  const formattedAuthors = isConference
+    ? (paper.author_ids || paper.findet_ids).map(author => formatAuthorName(author.name || author.pc_applicant_name)).join(', ').replace(/, ([^,]*)$/, ' $1')
+    : paper.all_author_compute
+      ? paper.all_author_compute.split(',').map(author => formatAuthorName(author.trim())).join(', ').replace(/, ([^,]*)$/, ' $1')
+      : '';
+
+  const handleCopyCitation = () => {
+    const citationText = isConference 
+      ? `${formattedAuthors} ${paper.title_of_paper}, ${paper.discipline} (${paper.publication_year_compute}), ${paper.conference}`
+      : `${formattedAuthors} ${paper.title}, ${paper.journal_title} (${paper.publication_year_compute}), ${paper.journal_info}`;
+    navigator.clipboard.writeText(citationText)
+      .then(() => {
+        setIsCitationCopied(true);
+        setTimeout(() => setIsCitationCopied(false), 2000); // Reset after 2 seconds
+      })
+      .catch(err => {
+        console.error('Failed to copy citation: ', err);
+      });
+  };
 
   return (
     <div className="p-6 border rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-200">
-      <h3 className="text-xl font-bold mb-2">{index} - {isConference ? paper.title_of_paper: paper.title}</h3>
+      <h3 className="text-xl font-bold mb-2">{index} - {isConference ? paper.title_of_paper : paper.title}</h3>
       {paper.abstract && <div>
         <h3 className="mt-2 text-lg font-semibold">Abstract:</h3>
         <div className="flex items-center">
           <p className="mr-2 mb-4 text-gray-800 text-justify">
-            {isExpanded ? paper.abstract : `${paper.abstract.slice(0, 200)}...`}{"   "}
+            {isExpanded ? paper.abstract : `${paper.abstract.slice(0, 200)}...`}{" "}
             <button
               onClick={handleExpandClick}
               className="text-blue-600 inline hover:underline"
@@ -93,31 +95,61 @@ const PaperCard = ({ paper, index }) => {
       <div className="flex items-center justify-between mt-4">
         <div>
           {!isConference && paper.impact_factor && <p className="text-gray-500 mb-1"><strong>Impact Factor: </strong>{paper.impact_factor}</p>}
-          <p className="text-gray-500 mb-1"><strong>Citations: </strong>{paper.citation_count_scopus || 0}</p>
+          {paper.citation_count_scopus != 0 ? <p className="text-gray-500 mb-1"><strong>Citations: </strong>{paper.citation_count_scopus || 0}</p> : null }
           {isConference ? <p className="text-gray-500 mb-1"><strong>Document Type: </strong>Conference Proceeding</p> : <p className="text-gray-500"><strong>Document Type: </strong>{paper.type}</p>}
           {isConference && <p className="text-gray-500 mb-1"><strong>Start Date: </strong>{paper.start_date}</p>}
           {isConference && <p className="text-gray-500"><strong>End Date: </strong>{paper.end_date}</p>}
         </div>
-        <div>
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setShowCitation(true)}
+            className="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-lg px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Create Citation
+          </button>
           {isConference ? 
             <Link
-            to={`/conference/${encodeURIComponent(paper.title_of_paper)}`}
-            target="_blank"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-lg px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              to={`/conference/${encodeURIComponent(paper.title_of_paper)}`}
+              target="_blank"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-lg px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Visit Document
             </Link> 
           : 
-          <Link
-          to={`/publication/${encodeURIComponent(paper.title)}`}
-          target="_blank"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-lg px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            Visit Document
-          </Link>
-      }
+            <Link
+              to={`/publication/${encodeURIComponent(paper.title)}`}
+              target="_blank"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-lg px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Visit Document
+            </Link>
+          }
         </div>
       </div>
+
+      {showCitation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Citation Details</h2>
+            <p className="mb-4">{isConference 
+              ? `${formattedAuthors} ${paper.title_of_paper}, ${paper.discipline} (${paper.publication_year_compute}), ${paper.conference}`
+              : `${formattedAuthors} ${paper.title}, ${paper.journal_title} (${paper.publication_year_compute}), ${paper.journal_info}`
+            }</p>
+            <button
+              onClick={handleCopyCitation}
+              className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+            >
+              {isCitationCopied ? 'Citation Copied' : 'Copy Citation'}
+            </button>
+            <button
+              onClick={() => setShowCitation(false)}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

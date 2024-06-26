@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// import Appbar from '../components/Appbar';
 import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import axios from 'axios';
@@ -8,30 +7,38 @@ import axios from 'axios';
 const sdgImages = import.meta.glob('/src/assets/sdgs/*.png', { eager: true });
 
 const apiName = '/odoocms_api';
-const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
-const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 
-const fetchAuthorCode = async (name) => {
+const fetchPublicationDetails = async (publicationId) => {
   try {
+    const decodedPublicationId = decodeURIComponent(publicationId);
+    console.log('Fetching publication details for:', decodedPublicationId);
     const response = await axios.get(apiName, {
       params: {
-        alias: qalamAuthorAlias,
-        auth: qalamAuthorAuth,
+        alias: qalamAlias,
+        auth: qalamAuth,
         rows: 1000,
-        name: name
+        title: decodedPublicationId // Using publicationId as title for the search
       }
     });
 
-    const data = response.data.ric_expert_portal_faculty_cards_json_data;
-    if (data.length > 0) {
-      return data[0].code;
+    console.log('API response:', response.data.ric_expert_portal_journal_pub_json_data);
+    
+    // Extract the publications array from the response
+    const publicationsArray = response.data.ric_expert_portal_journal_pub_json_data;
+
+    // Find the specific publication by exact title match
+    const publicationData = publicationsArray.find(pub => pub.title === publicationId);
+    if (publicationData) {
+      console.log('Publication found:', publicationData);
+      return publicationData;
     } else {
+      console.error('Publication not found');
       return null;
     }
   } catch (error) {
-    console.error('Error fetching author code:', error);
+    console.error('Error fetching publication details:', error);
     return null;
   }
 };
@@ -45,45 +52,22 @@ const Publications = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPublicationDetails = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const decodedPublicationId = decodeURIComponent(publicationId);
-        console.log('Fetching publication details for:', decodedPublicationId);
-        const response = await axios.get(apiName, {
-          params: {
-            alias: qalamAlias,
-            auth: qalamAuth,
-            rows: 1000,
-            title: decodedPublicationId // Using publicationId as title for the search
-          }
-        });
-
-        console.log('API response:', response.data.ric_expert_portal_journal_pub_json_data);
-        
-        // Extract the publications array from the response
-        const publicationsArray = response.data.ric_expert_portal_journal_pub_json_data;
-
-        // Find the specific publication by exact title match
-        const publicationData = publicationsArray.find(pub => pub.title === publicationId);
+        const publicationData = await fetchPublicationDetails(publicationId);
         if (publicationData) {
-          console.log('Publication found:', publicationData);
-          setPublication(publicationData);
-
-          // Fetch author codes for NUST authors
-          const authorCodes = await Promise.all(
-            publicationData.author_ids.map(async author => {
-              if (author.affiliation.toLowerCase() === 'nust') {
-                const code = await fetchAuthorCode(author.name);
-                return { ...author, code: code };
-              }
-              return author;
-            })
-          );
+          // Map author codes from faculty_student_author_compute if available
+          const authorCodes = publicationData.author_ids.map(author => {
+            if (author.faculty_student_author_compute) {
+              const code = author.faculty_student_author_compute.split(' - ')[0];
+              return { ...author, code: code };
+            }
+            return author;
+          });
           setPublication({ ...publicationData, author_ids: authorCodes });
-        
         } else {
-          console.error('Publication not found');
+          console.error('Publication details not found');
         }
       } catch (error) {
         console.error('Error fetching publication details:', error);
@@ -93,7 +77,7 @@ const Publications = () => {
     };
 
     if (publicationId) {
-      fetchPublicationDetails();
+      fetchData();
     } else {
       navigate('/'); // Redirect to home if no publication ID is provided
     }
@@ -184,16 +168,16 @@ const Publications = () => {
           <h2 className="text-2xl font-semibold mb-4">Details</h2>
           <p className="text-gray-700 mb-1"><strong>Document type:</strong> {publication.type}</p>
           <p className="text-gray-700 mb-1"><strong>Journal Title:</strong> {publication.journal_title}</p>
-          <p className="text-gray-700 mb-1"><strong>Journal Information:</strong>{publication.journal_info}</p>
-          {publication.online_publication_date ? <p className="text-gray-700 mb-1"><strong>Online publication date:</strong>{publication.online_publication_date}</p>  : null }
-          {publication.publication_date ? <p className="text-gray-700 mb-1"><strong>Publication date:</strong>{publication.publication_date}</p> : null }
-          <p className="text-gray-700 mb-1"><strong>Impact Factor:</strong> {publication.impact_factor}</p>
-          <p className="text-gray-700 mb-1"><strong>WoS Quartile:</strong> {publication.int_quartiles}</p>
-          <p className="text-gray-700 mb-1"><strong>Citations (Scopus):</strong> {publication.citation_count_scopus || 0}</p>
-          <p className="text-gray-700 mb-4"><strong>Web Link:</strong> {publication.doi_info ? (
+          <p className="text-gray-700 mb-1"><strong>Journal Information: </strong>{publication.journal_info}</p>
+          {publication.online_publication_date ? <p className="text-gray-700 mb-1"><strong>Online publication date: </strong>{publication.online_publication_date}</p>  : null }
+          {publication.publication_date ? <p className="text-gray-700 mb-1"><strong>Publication date: </strong>{publication.publication_date}</p> : null }
+          {publication.impact_factor && <p className="text-gray-700 mb-1"><strong>Impact Factor: </strong> {publication.impact_factor}</p> }
+          {publication.int_quartiles && <p className="text-gray-700 mb-1"><strong>WoS Quartile: </strong> {publication.int_quartiles}</p> }
+          {publication.citation_count_scopus && <p className="text-gray-700 mb-1"><strong>Citations (Scopus): </strong> {publication.citation_count_scopus || 0}</p> }
+          {publication.doi_info && <p className="text-gray-700 mb-4"><strong>Web Link: </strong> {publication.doi_info ? (
             <a href={`https://doi.org/${publication.doi_info}`} className="text-blue-600 hover:underline">{publication.doi_info}</a>
-          ) : 'N/A'}</p>
-          {publication.sdgs.length == 0 ? <div/> : <div className="mt-2 mb-8">
+          ) : 'N/A'}</p> }
+          {publication.sdgs.length === 0 ? <div/> : <div className="mt-2 mb-8">
             <h2 className="text-2xl font-semibold mb-2">SDGs</h2>
             {publication.sdgs.length > 0 ? (
               <div className="flex flex-wrap">

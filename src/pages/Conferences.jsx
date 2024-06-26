@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// import Appbar from '../components/Appbar';
 import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import axios from 'axios';
 
-const sdgImages = import.meta.glob('/src/assets/sdgs/*.png', { eager: true });
-
 const apiName = '/odoocms_api';
-const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
-const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
-const qalamConferenceAlias = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE;
+const qalamConferenceAlias = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_IND;
 const qalamConferenceAuth = import.meta.env.VITE_QALAM_AUTH_CONFERENCE;
 
-const fetchAuthorCode = async (name) => {
+const fetchConferenceDetails = async (conferenceId) => {
   try {
+    const decodedConferenceId = decodeURIComponent(conferenceId);
+    console.log('Fetching conference details for:', decodedConferenceId);
     const response = await axios.get(apiName, {
       params: {
-        alias: qalamAuthorAlias,
-        auth: qalamAuthorAuth,
+        alias: qalamConferenceAlias,
+        auth: qalamConferenceAuth,
         rows: 1000,
-        name: name
+        title_of_paper: decodedConferenceId // Using ConferenceId as title for the search
       }
     });
 
-    const data = response.data.ric_expert_portal_faculty_cards_json_data;
-    if (data.length > 0) {
-      return data[0].code;
+    console.log('API response:', response.data.ric_expert_portal_conference_pub_three_json_data);
+    
+    // Extract the publications array from the response
+    const conferenceArray = response.data.ric_expert_portal_conference_pub_three_json_data;
+
+    // Find the specific publication by exact title match
+    const conferenceData = conferenceArray.find(pub => pub.title_of_paper === conferenceId);
+    if (conferenceData) {
+      console.log('Conference found:', conferenceData);
+      return conferenceData;
     } else {
+      console.error('Conference not found');
       return null;
     }
   } catch (error) {
-    console.error('Error fetching author code:', error);
+    console.error('Error fetching Conference details:', error);
     return null;
   }
 };
 
-const Publications = () => {
+const Conferences = () => {
   const [conference, setConference] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showCitation, setShowCitation] = useState(false);
@@ -45,45 +50,22 @@ const Publications = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchConferenceDetails = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const decodedConferenceId = decodeURIComponent(conferenceId);
-        console.log('Fetching Conference details for:', decodedConferenceId);
-        const response = await axios.get(apiName, {
-          params: {
-            alias: qalamConferenceAlias,
-            auth: qalamConferenceAuth,
-            rows: 1000,
-            title: decodedConferenceId // Using publicationId as title for the search
-          }
-        });
-
-        console.log('API response:', response.data.ric_expert_portal_conference_pub_json_data);
-        
-        // Extract the conferences array from the response
-        const conferenceArray = response.data.ric_expert_portal_journal_pub_json_data;
-
-        // Find the specific conferences by exact title match
-        const conferenceData = conferenceArray.find(conf => conf.title_of_paper === conferenceId);
+        const conferenceData = await fetchConferenceDetails(conferenceId);
         if (conferenceData) {
-          console.log('Conference found:', conferenceData);
-          setConference(conferenceData);
-
-          // Fetch author codes for NUST authors
-          const authorCodes = await Promise.all(
-            conferenceData.author_ids.map(async author => {
-              if (author.affiliation.toLowerCase() === 'nust') {
-                const code = await fetchAuthorCode(author.name);
-                return { ...author, code: code };
-              }
-              return author;
-            })
-          );
+          // Map author codes from faculty_student_author_compute if available
+          const authorCodes = conferenceData.author_ids.map(author => {
+            if (author.faculty_student_author_compute) {
+              const code = author.faculty_student_author_compute.split(' - ')[0];
+              return { ...author, code: code };
+            }
+            return author;
+          });
           setConference({ ...conferenceData, author_ids: authorCodes });
-        
         } else {
-          console.error('Conference not found');
+          console.error('Conference details not found');
         }
       } catch (error) {
         console.error('Error fetching conference details:', error);
@@ -93,7 +75,7 @@ const Publications = () => {
     };
 
     if (conferenceId) {
-      fetchConferenceDetails();
+      fetchData();
     } else {
       navigate('/'); // Redirect to home if no publication ID is provided
     }
@@ -185,9 +167,9 @@ const Publications = () => {
           <p className="text-gray-700 mb-1"><strong>Document type:</strong> Conference Proceeding</p>
           <p className="text-gray-700 mb-1"><strong>Conference Name: </strong> {conference.conference}</p>
           <p className="text-gray-700 mb-1"><strong>Country of Event: </strong>{conference.country_of_event}</p>
-          <p className="text-gray-700 mb-1"><strong>Discipline: </strong>{conference.discipline}</p>
-          {conference.publication_year_compute ? <p className="text-gray-700 mb-1"><strong>Publication date:</strong>{conference.publication_year_compute}</p> : null }
-          <p className="text-gray-700 mb-1"><strong>Citations (scopus): </strong> {conference.citation_count_scopus || 0}</p>
+          {conference.discipline && <p className="text-gray-700 mb-1"><strong>Discipline: </strong>{conference.discipline}</p>}
+          {conference.publication_year_compute ? <p className="text-gray-700 mb-1"><strong>Publication date: </strong>{conference.publication_year_compute}</p> : null }
+          {conference.citation_count_scopus != 0 && <p className="text-gray-700 mb-1"><strong>Citations (scopus): </strong> {conference.citation_count_scopus || 0}</p>}
           <p className="text-gray-700 mb-1"><strong>Start Date: </strong> {conference.start_date}</p>
           <p className="text-gray-700 mb-1"><strong>End Date: </strong> {conference.end_date}</p>
           <p className="text-gray-700 mb-4"><strong>Web Link:</strong> {conference.doi_info ? (
@@ -206,7 +188,7 @@ const Publications = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
               <h2 className="text-xl font-bold mb-4">Citation Details</h2>
-              <p className="mb-4">{`${formattedAuthors}${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
+              <p className="mb-4">{`${formattedAuthors} ${conference.title_of_paper}. ${conference.discipline} (${conference.publication_year_compute}). ${conference.conference}`}</p>
               <button
                 onClick={handleCopyCitation}
                 className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
@@ -228,4 +210,4 @@ const Publications = () => {
   );
 };
 
-export default Publications;
+export default Conferences;

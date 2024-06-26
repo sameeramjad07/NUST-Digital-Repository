@@ -9,7 +9,31 @@ const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 const qalamAuthorAlias = import.meta.env.VITE_QALAM_ALIAS_AUTHOR;
 const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
 const qalamConferenceAlias = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE;
+const qalamConferenceAliasInd = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_IND;
 const qalamConferenceAuth = import.meta.env.VITE_QALAM_AUTH_CONFERENCE;
+const qalamConferenceAbs = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_ABS
+const qalamJournalAbs = import.meta.env.VITE_QALAM_ALIAS_JOURNAL_ABS
+
+const additionalApis = [
+  {
+    alias: qalamConferenceAliasInd,
+    auth: qalamConferenceAuth,
+    param: 'title_of_paper',
+    resultArray: 'ric_expert_portal_conference_pub_three_json_data'
+  },
+  {
+    alias: qalamConferenceAbs,
+    auth: qalamConferenceAuth,
+    param: 'abstract',
+    resultArray: 'ric_expert_portal_conference_pub_four_json_data'
+  },
+  {
+    alias: qalamJournalAbs,
+    auth: qalamAuth,
+    param: 'abstract',
+    resultArray: 'ric_expert_portal_journal_pub_three_json_data'
+  }
+];
 
 const SearchBar = ({ onResults }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,8 +76,9 @@ const SearchBar = ({ onResults }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      let results = [];
       if (selectedCategory === 'title') {
-        const response = await axios.get(apiName, {
+        const mainResponse = await axios.get(apiName, {
           params: {
             alias: qalamAlias,
             auth: qalamAuth,
@@ -61,9 +86,31 @@ const SearchBar = ({ onResults }) => {
             title: searchQuery,
           },
         });
-        if (response && response.data) {
-          onResults(response.data.ric_expert_portal_journal_pub_json_data, searchQuery);
+
+        if (mainResponse && mainResponse.data) {
+          results = mainResponse.data.ric_expert_portal_journal_pub_json_data || [];
         }
+
+        const additionalResponses = await Promise.all(
+          additionalApis.map(api =>
+            axios.get(apiName, {
+              params: {
+                alias: api.alias,
+                auth: api.auth,
+                rows: 1000,
+                [api.param]: searchQuery,
+              },
+            })
+          )
+        );
+
+        additionalResponses.forEach((response, index) => {
+          if (response && response.data) {
+            const api = additionalApis[index];
+            results = results.concat(response.data[api.resultArray] || []);
+          }
+        });
+
       } else if (selectedCategory === 'author' && selectedAuthor) {
         const [pubResponse, confResponse] = await Promise.all([
           axios.get(apiName, {
@@ -83,12 +130,14 @@ const SearchBar = ({ onResults }) => {
             },
           }),
         ]);
+
         const publications = pubResponse.data.ric_expert_portal_journal_pub_json_data || [];
         const conferences = confResponse.data.ric_expert_portal_conference_pub_json_data || [];
-        const results = shuffleArray([...publications, ...conferences]);
+        results = shuffleArray([...publications, ...conferences]);
         setSelectedAuthor(null);
-        onResults(results, searchQuery);
       }
+
+      onResults(results, searchQuery);
     } catch (error) {
       console.error('Error fetching search results:', error);
     } finally {

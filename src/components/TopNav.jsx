@@ -15,12 +15,12 @@ const TopNav = () => {
         <div className="flex items-center justify-between">
           <a className="inline-flex items-center space-x-3 rtl:space-x-reverse" href="/">
             <img src={nustLogo} className="h-12" alt="University Logo" />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white lg:block hidden">National University of Sciences and Technology</span>
+            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white lg:block hidden">National University of Sciences and Technology</span>
           </a>
           <div className="sm:hidden">
             <button
               type="button"
-              className="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              className="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-x-2 rounded-lg border border-gray-200 bg-white  shadow-sm  focus:outline-none focus:ring-2 text-gray-400 hover:bg-gray-700 focus:ring-gray-600"
               onClick={toggleMenu}
               aria-controls="navbar-default"
               aria-expanded={isMenuOpen ? "true" : "false"}
@@ -39,11 +39,11 @@ const TopNav = () => {
         </div>
         <div id="navbar-default" className={`transition-all duration-300 ${isMenuOpen ? 'max-h-screen' : 'max-h-0 overflow-hidden'} sm:max-h-full sm:overflow-visible sm:flex sm:items-center sm:justify-end`}>
           <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5">
-            <Link to="/" className="font-medium text-blue-700 md:text-blue-700 dark:text-white md:dark:text-blue-500 block py-2 px-3 rounded md:p-0" aria-current="page">Home</Link>
-            <Link to="/about" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">About</Link>
+            <Link to="/" className="font-medium text-white md:text-blue-500 block py-2 px-3 rounded md:p-0" aria-current="page">Home</Link>
+            <Link to="/about" className="font-medium hover:text-gray-700 text-white md:hover:text-blue-500 block py-2 px-3 rounded md:p-0">About</Link>
             {/* <Link to="/help" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Help</Link>
             <Link to="/categories" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Categories</Link> */}
-            <Link to="/contact" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Contact Us</Link>
+            <Link to="/contact" className="font-medium hover:text-gray-700 text-white md:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Contact Us</Link>
           </div>
         </div>
       </nav>

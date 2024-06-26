@@ -1,19 +1,24 @@
 import { utils, writeFile } from 'xlsx';
 
 export const generateExcel = (papers, searchQuery) => {
-  const wsData = papers.map((paper, index) => ({
-    'S.No.': index + 1,
-    'Title': paper.conference ? paper.title_of_paper : paper.title,
-    'Abstract': paper.abstract || '',
-    'Authors': paper.author_ids.map(author => author.name).join(', '),
-    'Year': paper.publication_year_compute,
-    'Journal/Conference': paper.conference || paper.journal_title,
-    'Impact Factor': paper.impact_factor || '',
-    'Citations': paper.citation_count_scopus || 0,
-    'Document Type': paper.conference ? 'Conference Proceeding' : paper.type,
-    'Start Date': paper.start_date || '',
-    'End Date': paper.end_date || '',
-  }));
+  const wsData = papers.map((paper, index) => {
+    const authors = paper.author_ids || paper.findet_ids || [];
+    const authorNames = authors.map(author => author.name || author.pc_applicant_name).join(', ');
+
+    return {
+      'S.No.': index + 1,
+      'Title': paper.conference ? paper.title_of_paper : paper.title,
+      'Abstract': paper.abstract || '',
+      'Authors': authorNames,
+      'Year': paper.publication_year_compute,
+      'Journal/Conference': paper.conference || paper.journal_title,
+      'Impact Factor': paper.impact_factor || '',
+      'Citations': paper.citation_count_scopus || 0,
+      'Document Type': paper.conference ? 'Conference Proceeding' : paper.type,
+      'Start Date': paper.start_date || '',
+      'End Date': paper.end_date || '',
+    };
+  });
 
   const ws = utils.json_to_sheet(wsData);
 

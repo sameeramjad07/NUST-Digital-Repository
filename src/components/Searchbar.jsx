@@ -11,8 +11,8 @@ const qalamAuthorAuth = import.meta.env.VITE_QALAM_AUTH_AUTHOR;
 const qalamConferenceAlias = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE;
 const qalamConferenceAliasInd = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_IND;
 const qalamConferenceAuth = import.meta.env.VITE_QALAM_AUTH_CONFERENCE;
-const qalamConferenceAbs = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_ABS
-const qalamJournalAbs = import.meta.env.VITE_QALAM_ALIAS_JOURNAL_ABS
+const qalamConferenceAbs = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_ABS;
+const qalamJournalAbs = import.meta.env.VITE_QALAM_ALIAS_JOURNAL_ABS;
 
 const additionalApis = [
   {
@@ -37,7 +37,7 @@ const additionalApis = [
 
 const SearchBar = ({ onResults }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('title');
+  const [selectedCategory, setSelectedCategory] = useState('keyword');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authorSuggestions, setAuthorSuggestions] = useState([]);
@@ -77,7 +77,7 @@ const SearchBar = ({ onResults }) => {
     setIsLoading(true);
     try {
       let results = [];
-      if (selectedCategory === 'title') {
+      if (selectedCategory === 'keyword') {
         const mainResponse = await axios.get(apiName, {
           params: {
             alias: qalamAlias,
@@ -137,12 +137,26 @@ const SearchBar = ({ onResults }) => {
         setSelectedAuthor(null);
       }
 
-      onResults(results, searchQuery);
+      const uniqueResults = deduplicateResults(results);
+      onResults(uniqueResults, searchQuery);
     } catch (error) {
       console.error('Error fetching search results:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const deduplicateResults = (results) => {
+    const seenTitles = new Set();
+    return results.filter(paper => {
+      const title = paper.title || paper.title_of_paper;
+      if (seenTitles.has(title)) {
+        return false;
+      } else {
+        seenTitles.add(title);
+        return true;
+      }
+    });
   };
 
   const shuffleArray = (array) => {
@@ -174,7 +188,7 @@ const SearchBar = ({ onResults }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="block w-full py-3 px-4 text-base text-gray-900 bg-gray-100 border border-gray-300 rounded-l focus:outline-none focus:bg-white focus:border-gray-500"
-            placeholder={selectedCategory === 'title' ? "Search for papers, articles, etc." : "Search by author name"}
+            placeholder={selectedCategory === 'keyword' ? "Search for papers, articles, etc." : "Search by author name"}
             required
           />
           <button
@@ -205,7 +219,7 @@ const SearchBar = ({ onResults }) => {
 
       {isDropdownOpen && (
         <div className="absolute top-full right-0 w-full sm:w-1/3 mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
-          {['title', 'author'].map((category) => (
+          {['keyword', 'author'].map((category) => (
             <button
               key={category}
               type="button"

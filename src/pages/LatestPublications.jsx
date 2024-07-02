@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import PaperCard from '../components/PaperCard';
@@ -17,16 +16,14 @@ const LatestPublications = () => {
     const fetchPublications = async () => {
       try {
         const currentYear = new Date().getFullYear();
-        const response = await axios.get(apiName, {
-          params: {
-            alias: qalamLatestAlias,
-            auth: qalamAuth,
-            rows: 1000,
-            publication_date: currentYear,
-          },
-        });
-        
-        const allPublications = response.data.ric_expert_portal_journal_pub_five_json_data;
+        const response = await fetch(`${apiName}?alias=${qalamLatestAlias}&auth=${qalamAuth}&rows=1000&publication_date=${currentYear}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        const allPublications = responseData.ric_expert_portal_journal_pub_five_json_data;
 
         // Sort publications by publication_date in descending order
         const sortedPublications = allPublications.sort((a, b) => new Date(b.publication_date) - new Date(a.publication_date));

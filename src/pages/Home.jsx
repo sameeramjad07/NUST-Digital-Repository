@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import TopNav from '../components/TopNav';
 import SearchBar from '../components/Searchbar';
 import Footer from '../components/Footer';
@@ -41,10 +42,17 @@ const Home = () => {
         <p className="text-justify w-11/12 sm:w-2/3 md:w-full lg:w-full mb-6 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-gray-500 px-4 sm:px-8 md:px-16 lg:px-24 dark:text-gray-400">
           Discover the wealth of academic knowledge hosted on the NUST Digital Research Repository. As the primary repository for research papers and scholarly articles from NUST University's esteemed professors and researchers, our platform offers unprecedented access to cutting-edge discoveries and insights. From groundbreaking studies to innovative findings, explore a diverse array of disciplines and contribute to the advancement of knowledge in your field. Join us in fostering collaboration and sharing ideas as we collectively push the boundaries of academic exploration.
         </p>
-      </div>
         <SearchBar onResults={handleResults} />
+        <Link
+          to={`/latest-publications`}
+          target="_blank"
+          className="mt-6 text-blue-500 bg-slate-100 hover:bg-slate-200 border border-blue-400 transition focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-md px-4 py-2"
+        >
+          View Latest Publications
+        </Link> 
+      </div>
         {papers.length > 0 && (
-          <div className="mt-4 mx-10 flex justify-end">
+          <div className="mt-4 mx-10 flex sm:justify-end justify-center">
             <button
               onClick={handleDownload}
               className="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2"
@@ -53,7 +61,7 @@ const Home = () => {
             </button>
           </div>
         )}
-      <div className="space-y-6 p-4 mt-8 mx-10 flex-grow">
+      <div className="space-y-6 p-4 mt-8 mx-auto flex-grow">
         {currentPapers.map((paper, index) => (
           <PaperCard 
             key={paper.id} 

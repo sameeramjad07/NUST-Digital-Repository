@@ -1,22 +1,28 @@
 import { utils, writeFile } from 'xlsx';
 
+// Helper function to sanitize strings for XML
+const sanitizeString = (str) => {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[\u0000-\u001F\u007F-\u009F\uD800-\uDFFF]/g, '');
+};
+
 export const generateExcel = (papers, searchQuery) => {
   const wsData = papers.map((paper, index) => {
     const authors = paper.author_ids || paper.findet_ids || [];
-    const authorNames = authors.map(author => author.name || author.pc_applicant_name).join(', ');
+    const authorNames = authors.map(author => sanitizeString(author.name || author.pc_applicant_name || '')).join(', ');
 
     return {
       'S.No.': index + 1,
-      'Title': paper.conference ? paper.title_of_paper : paper.title,
-      'Abstract': paper.abstract || '',
+      'Title': sanitizeString(paper.conference ? paper.title_of_paper || '' : paper.title || ''),
+      'Abstract': sanitizeString(paper.abstract || ''),
       'Authors': authorNames,
-      'Year': paper.publication_year_compute,
-      'Journal/Conference': paper.conference || paper.journal_title,
-      'Impact Factor': paper.impact_factor || '',
-      'Citations': paper.citation_count_scopus || 0,
-      'Document Type': paper.conference ? 'Conference Proceeding' : paper.type,
-      'Start Date': paper.start_date || '',
-      'End Date': paper.end_date || '',
+      'Year': sanitizeString(paper.publication_year_compute || ''),
+      'Journal/Conference': sanitizeString(paper.conference || paper.journal_title || ''),
+      'Impact Factor': sanitizeString(paper.impact_factor || ''),
+      'Citations': sanitizeString(paper.citation_count_scopus || ''),
+      'Document Type': sanitizeString(paper.conference ? 'Conference Proceeding' : paper.type || ''),
+      'Start Date': sanitizeString(paper.start_date || ''),
+      'End Date': sanitizeString(paper.end_date || ''),
     };
   });
 
@@ -42,12 +48,18 @@ export const generateExcel = (papers, searchQuery) => {
   const wb = utils.book_new();
   utils.book_append_sheet(wb, ws, 'Search Results');
 
-  const searchQuerySheet = utils.aoa_to_sheet([['Search Query:', searchQuery]]);
+  const queryData = [['Search Query:', sanitizeString(searchQuery)]];
+  const searchQuerySheet = utils.aoa_to_sheet(queryData);
+
   utils.book_append_sheet(wb, searchQuerySheet, 'Query Details');
 
   return wb;
 };
 
 export const downloadExcel = (wb) => {
-  writeFile(wb, 'search_results.xlsx');
+  try {
+    writeFile(wb, 'search_results.xlsx');
+  } catch (error) {
+    console.error('Error writing Excel file:', error);
+  }
 };

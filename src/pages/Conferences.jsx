@@ -131,22 +131,24 @@ const Conferences = () => {
   }
 
   const renderAuthors = () => {
-    return conference.author_ids.map(author => {
-      if (author.affiliation.toLowerCase() === 'nust' && author.code) {
-        return (
-          <a
-            key={author.id}
-            target="_blank"
-            href={`https://collaborate.nust.edu.pk/profile/${author.name.replace(' ', '%20')}/${author.code}`}
-            className="text-blue-700 hover:underline"
-          >
-            {author.name}
-          </a>
-        );
-      } else {
-        return author.name;
-      }
-    }).reduce((prev, curr) => [prev, ', ', curr]);
+    return conference.author_ids?.length > 0 
+      ? conference.author_ids.map(author => {
+          if (author.affiliation.toLowerCase() === 'nust' && author.code) {
+            return (
+              <a
+                key={author.id}
+                target="_blank"
+                href={`https://collaborate.nust.edu.pk/profile/${author.name.replace(' ', '%20')}/${author.code}`}
+                className="text-blue-700 hover:underline"
+              >
+                {author.name}
+              </a>
+            );
+          } else {
+            return author.name;
+          }
+        }).reduce((prev, curr) => [prev, ', ', curr], [])
+      : null;
   };
 
   return (
@@ -155,9 +157,9 @@ const Conferences = () => {
       <div className="container mx-auto px-4 py-8">
         {conference.publication_year_compute ? <i className='text-gray-500'>[Published on {conference.publication_year_compute}]</i> : null }
         <h1 className="text-3xl font-bold mb-4">{conference.title_of_paper}</h1>
-        <p className="text-gray-600 mb-4">
+        { renderAuthors() !== null && <p className="text-gray-600 mb-4">
           {renderAuthors()} - {conference.publication_year_compute || 'N/A'}
-        </p>
+        </p>}
         {conference.abstract && <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-2">Abstract</h2>
           <p className="text-gray-700 text-justify">{conference.abstract || 'No abstract available.'}</p>
@@ -172,9 +174,11 @@ const Conferences = () => {
           {conference.citation_count_scopus != 0 && <p className="text-gray-700 mb-1"><strong>Citations (scopus): </strong> {conference.citation_count_scopus || 0}</p>}
           <p className="text-gray-700 mb-1"><strong>Start Date: </strong> {conference.start_date}</p>
           <p className="text-gray-700 mb-1"><strong>End Date: </strong> {conference.end_date}</p>
-          <p className="text-gray-700 mb-4"><strong>Web Link:</strong> {conference.doi_info ? (
-            <a href={`https://doi.org/${conference.doi_info}`} className="text-blue-600 hover:underline">{conference.doi_info}</a>
-          ) : 'N/A'}</p>
+          {conference.doi_info && conference.doi_info !== 'N/A' && (
+            <p className="text-gray-700 mb-4"><strong>Web Link:</strong> (
+              <a href={`https://doi.org/${conference.doi_info}`} className="text-blue-600 hover:underline">{conference.doi_info}</a>
+            )</p>
+          )}
         </div>
 
         <button

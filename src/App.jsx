@@ -13,6 +13,7 @@ import Publications from './pages/Publications';
 import Conferences from './pages/Conferences';
 import ContactUs from './pages/ContactUs'
 import ProtectedRoute from './components/protectedRoute';
+import LatestPublications from './pages/LatestPublications';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,6 +30,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/publication/:publicationId" element={<Publications />} />
         <Route path="/conference/:conferenceId" element={<Conferences />} />
+        <Route path="/latest-publications" element={<LatestPublications />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/login" element={<Login />} />
         {/* <Route

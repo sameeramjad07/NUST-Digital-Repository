@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import PaperCard from '../components/PaperCard';
@@ -15,21 +16,47 @@ const LatestPublications = () => {
   useEffect(() => {
     const fetchPublications = async () => {
       try {
-        const currentYear = new Date().getFullYear();
-        const response = await fetch(`${apiName}?alias=${qalamLatestAlias}&auth=${qalamAuth}&rows=1000&publication_date=${currentYear}`);
+        const today = new Date();
+        const publicationsToFetch = 10;
+        const fetchedPublications = [];
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        // Start fetching publications from 12 months ahead of the current month and year
+        for (let i = 12; i >= 0; i--) {
+          const fetchDate = new Date(today.getFullYear(), today.getMonth() + i);
+          const year = fetchDate.getFullYear();
+          const month = fetchDate.getMonth() + 1; // Month is zero-indexed, so we add 1
+
+          const response = await axios.get(apiName, {
+            params: {
+              alias: qalamLatestAlias,
+              auth: qalamAuth,
+              rows: 1000,
+              publication_date: `${year}-${month.toString().padStart(2, '0')}`,
+            },
+          });
+
+          const fetchedData = response.data.ric_expert_portal_journal_pub_five_json_data || [];
+
+          // Filter and add unique publications
+          fetchedData.forEach(publication => {
+            if (!fetchedPublications.some(pub => pub.id === publication.id)) {
+              fetchedPublications.push(publication);
+            }
+          });
+
+          // Break the loop if we have enough publications
+          if (fetchedPublications.length >= publicationsToFetch) {
+            break;
+          }
         }
 
-        const responseData = await response.json();
-        const allPublications = responseData.ric_expert_portal_journal_pub_five_json_data;
-
         // Sort publications by publication_date in descending order
-        const sortedPublications = allPublications.sort((a, b) => new Date(b.publication_date) - new Date(a.publication_date));
+        const sortedPublications = fetchedPublications.sort((a, b) => new Date(b.publication_date) - new Date(a.publication_date));
 
         // Get the top 10 publications
-        setPublications(sortedPublications.slice(0, 10));
+        const topPublications = sortedPublications.slice(0, publicationsToFetch);
+
+        setPublications(topPublications);
       } catch (error) {
         console.error('Error fetching publications:', error);
       } finally {

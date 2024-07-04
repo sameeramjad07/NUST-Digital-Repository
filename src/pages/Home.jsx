@@ -12,16 +12,48 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [papersPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
+  const [docTypeCounts, setDocTypeCounts] = useState({});
+  const [uniqueYears, setUniqueYears] = useState([]);
+  const [selectedDocType, setSelectedDocType] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
 
   const handleResults = (results, query) => {
     console.log('Search Results:', results);
     setPapers(results);
     setSearchQuery(query);
+    extractUniqueFilters(results);
   };
+
+  const extractUniqueFilters = (results) => {
+    const docTypes = {};
+    const years = new Set();
+
+    results.forEach(paper => {
+      const docType = paper.type || (paper.doc_type ? (paper.doc_type.trim() === '' ? 'Conference Proceedings' : paper.doc_type) : 'Conference Proceedings');
+      if (!docTypes[docType]) {
+        docTypes[docType] = 0;
+      }
+      docTypes[docType]++;
+      if (paper.publication_year_compute) {
+        years.add(paper.publication_year_compute);
+      }
+    });
+
+    setDocTypeCounts(docTypes);
+    setUniqueYears([...years]);
+  };
+
+  const filteredPapers = papers.filter(paper => {
+    const docType = paper.type || (paper.doc_type ? (paper.doc_type.trim() === '' ? 'Conference Proceedings' : paper.doc_type) : 'Conference Proceedings');
+    return (
+      (selectedDocType === '' || docType === selectedDocType) &&
+      (selectedYear === '' || paper.publication_year_compute === selectedYear)
+    );
+  });
 
   const indexOfLastPaper = currentPage * papersPerPage;
   const indexOfFirstPaper = indexOfLastPaper - papersPerPage;
-  const currentPapers = papers.slice(indexOfFirstPaper, indexOfLastPaper);
+  const currentPapers = filteredPapers.slice(indexOfFirstPaper, indexOfLastPaper);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -51,7 +83,8 @@ const Home = () => {
           View Latest Publications
         </Link> 
       </div>
-        {papers.length > 0 && (
+      {papers.length > 0 && (
+        <div>
           <div className="mt-4 mx-10 flex sm:justify-end justify-center">
             <button
               onClick={handleDownload}
@@ -60,7 +93,30 @@ const Home = () => {
               Download Results
             </button>
           </div>
-        )}
+          <div className="mt-6 flex justify-center">
+            <select 
+              value={selectedDocType} 
+              onChange={(e) => setSelectedDocType(e.target.value)} 
+              className="mr-4 p-2 border rounded"
+            >
+              <option value=''>Document Type</option>
+              {Object.keys(docTypeCounts).map((docType, index) => (
+                <option key={index} value={docType}>{`${docType} (${docTypeCounts[docType]})`}</option>
+              ))}
+            </select>
+            <select 
+              value={selectedYear} 
+              onChange={(e) => setSelectedYear(e.target.value)} 
+              className="p-2 border rounded"
+            >
+              <option value=''>Publication Year</option>
+              {uniqueYears.map((year, index) => (
+                <option key={index} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
       <div className="space-y-6 p-4 mt-8 mx-auto flex-grow">
         {currentPapers.map((paper, index) => (
           <PaperCard 
@@ -70,10 +126,10 @@ const Home = () => {
           />
         ))}
       </div>
-      {papers.length > 0 && (
+      {filteredPapers.length > 0 && (
         <Pagination
           papersPerPage={papersPerPage}
-          totalPapers={papers.length}
+          totalPapers={filteredPapers.length}
           paginate={paginate}
           currentPage={currentPage}
         />

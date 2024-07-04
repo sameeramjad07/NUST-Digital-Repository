@@ -49,11 +49,17 @@ const PaperCard = ({ paper, index }) => {
     return `${lastName}, ${initials}${initials ? '.' : ''}`;
   };
 
-  const formattedAuthors = isConference
-    ? (paper.author_ids || paper.findet_ids).map(author => formatAuthorName(author.name || author.pc_applicant_name)).join(', ').replace(/, ([^,]*)$/, ' $1')
-    : paper.all_author_compute
-      ? paper.all_author_compute.split(',').map(author => formatAuthorName(author.trim())).join(', ').replace(/, ([^,]*)$/, ' $1')
-      : '';
+  const getAuthors = (paper) => {
+    const authors = paper.author_ids || paper.findet_ids || [];
+    if (authors.length > 0) {
+      return authors.map(author => formatAuthorName(author.name || author.pc_applicant_name)).join(', ').replace(/, ([^,]*)$/, ' $1');
+    } else if (paper.all_author_compute) {
+      return paper.all_author_compute.split(',').map(author => formatAuthorName(author.trim())).join(', ').replace(/, ([^,]*)$/, ' $1');
+    }
+    return '';
+  };
+  
+  const formattedAuthors = getAuthors(paper);
 
   const handleCopyCitation = () => {
     const citationText = isConference 

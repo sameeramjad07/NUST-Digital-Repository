@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="mb-6 lg:mb-0">
             <a href="#" className="flex items-center">
               <img src={nustLogo} className="h-8 me-3" alt="RIC Logo" />
-              <span className="text-xl md:text-2xl font-semibold whitespace-nowrap text-white">NUST Digital Research Repository</span>
+              <span className="text-xl md:text-2xl font-semibold text-white">National University of Sciences and Technology</span>
             </a>
           </div>
           <div className="flex flex-col">

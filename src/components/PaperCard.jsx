@@ -76,7 +76,7 @@ const PaperCard = ({ paper, index }) => {
   };
 
   return (
-    <div className="p-4 sm:p-6 border rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-200 sm:mx-4">
+    <div className="p-4 sm:p-6 border-2 border-slate-400 rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-200 sm:mx-4">
       <h3 className="text-lg sm:text-xl font-bold mb-2">{index} - {isConference ? paper.title_of_paper : paper.title}</h3>
       {paper.abstract && <div>
         <h3 className="mt-2 text-md sm:text-lg font-semibold">Abstract:</h3>

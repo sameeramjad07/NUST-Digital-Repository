@@ -15,7 +15,7 @@ const TopNav = () => {
         <div className="flex items-center justify-between">
           <a className="inline-flex items-center space-x-3 rtl:space-x-reverse" href="/">
             <img src={nustLogo} className="h-12" alt="University Logo" />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white lg:block hidden">National University of Sciences and Technology</span>
+            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white lg:block hidden">NUST Digital Research Repository</span>
           </a>
           <div className="sm:hidden">
             <button

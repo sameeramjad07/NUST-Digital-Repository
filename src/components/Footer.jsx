@@ -64,7 +64,7 @@ const Footer = () => {
         </div>
         <hr className="my-6 border-gray-600 sm:mx-auto" />
         <div className="text-sm text-center text-gray-500">
-          <p>&copy; {new Date().getFullYear()} NUST Research Dte. All rights reserved.</p>
+          <p>&copy; 2024 NUST Research Dte. All rights reserved.</p>
         </div>
       </footer>
     );

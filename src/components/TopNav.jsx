@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import nustLogo from '../assets/nustLogo.png';
+import ndrrlogo from '../assets/NDRR_logo.jpg';
 import { Link } from 'react-router-dom';
 
 const TopNav = () => {
@@ -14,7 +14,7 @@ const TopNav = () => {
       <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between" aria-label="Global">
         <div className="flex items-center justify-between">
           <a className="inline-flex items-center space-x-3 rtl:space-x-reverse" href="/">
-            <img src={nustLogo} className="h-12" alt="University Logo" />
+            <img src={ndrrlogo} className="h-12 w-12 rounded-full object-cover" alt="NDRR Logo" />
             <span className="self-center text-2xl font-semibold whitespace-nowrap text-white lg:block hidden">NUST Digital Research Repository</span>
           </a>
           <div className="sm:hidden">
@@ -40,7 +40,7 @@ const TopNav = () => {
         <div id="navbar-default" className={`transition-all duration-300 ${isMenuOpen ? 'max-h-screen' : 'max-h-0 overflow-hidden'} sm:max-h-full sm:overflow-visible sm:flex sm:items-center sm:justify-end`}>
           <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5">
             <Link to="/" className="font-medium text-white md:text-blue-500 block py-2 px-3 rounded md:p-0" aria-current="page">Home</Link>
-            <Link to="/about" className="font-medium hover:text-gray-700 text-white md:hover:text-blue-500 block py-2 px-3 rounded md:p-0">About</Link>
+            <Link to="/faqs" className="font-medium hover:text-gray-700 text-white md:hover:text-blue-500 block py-2 px-3 rounded md:p-0">FAQs</Link>
             {/* <Link to="/help" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Help</Link>
             <Link to="/categories" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white md:dark:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Categories</Link> */}
             <Link to="/contact" className="font-medium hover:text-gray-700 text-white md:hover:text-blue-500 block py-2 px-3 rounded md:p-0">Contact Us</Link>

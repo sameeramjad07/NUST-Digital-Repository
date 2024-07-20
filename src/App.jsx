@@ -12,8 +12,10 @@ import Signup from './pages/Signup';
 import Publications from './pages/Publications';
 import Conferences from './pages/Conferences';
 import ContactUs from './pages/ContactUs'
+import FAQs from './pages/FAQs';
 import ProtectedRoute from './components/protectedRoute';
 import LatestPublications from './pages/LatestPublications';
+import AdminCharts from './pages/AdminCharts';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +33,8 @@ function App() {
         <Route path="/publication/:publicationId" element={<Publications />} />
         <Route path="/conference/:conferenceId" element={<Conferences />} />
         <Route path="/latest-publications" element={<LatestPublications />} />
+        <Route path="/admin" element={<AdminCharts />} />
+        <Route path="/faqs" element={<FAQs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/login" element={<Login />} />
         {/* <Route

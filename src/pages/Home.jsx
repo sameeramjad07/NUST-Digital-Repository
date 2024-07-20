@@ -5,7 +5,10 @@ import SearchBar from '../components/Searchbar';
 import Footer from '../components/Footer';
 import PaperCard from '../components/PaperCard';
 import Pagination from '../components/Pagination';
+import Charts from '../components/Charts'; 
+import ndrrLogo from '../assets/NDRR_logo_home.jpg';
 import { generateExcel, downloadExcel } from '../utils/csvUtils';
+import axios from 'axios';
 
 const Home = () => {
   const [papers, setPapers] = useState([]);
@@ -16,12 +19,26 @@ const Home = () => {
   const [uniqueYears, setUniqueYears] = useState([]);
   const [selectedDocType, setSelectedDocType] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
+  const [chartsData, setChartsData] = useState([]);
+
+  useEffect(() => {
+    fetchChartsData();
+  }, []);
 
   useEffect(() => {
     // Reset filters whenever searchQuery changes
     setSelectedDocType('');
     setSelectedYear('');
   }, [searchQuery]);
+
+  const fetchChartsData = async () => {
+    try {
+      const response = await axios.get('https://ndrr-chartsapi.onrender.com/api/charts');
+      setChartsData(response.data);
+    } catch (error) {
+      console.error('Failed to fetch charts data:', error);
+    }
+  };
 
   const handleResults = (results, query) => {
     console.log('Search Results:', results);
@@ -83,11 +100,13 @@ const Home = () => {
     downloadExcel(wb);
   };
 
+
   return (
     <div className="flex flex-col min-h-screen">
       <TopNav />
       <div className="mt-6 flex flex-col items-center flex-grow">
-        <h3 className='text-center mt-6 text-xl leading-none tracking-tight text-gray-600 md:text-2xl lg:text-3xl'>Welcome to the</h3>
+        <img src={ndrrLogo} className='w-52' alt="NDRR Logo" />
+        {/* <h3 className='text-center mt-6 text-xl leading-none tracking-tight text-gray-600 md:text-2xl lg:text-3xl'>Welcome to the</h3> */}
         <h1 className="text-center mt-2 mb-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl md:text-5xl lg:text-6xl">
           NUST{' '}
           <span className='underline underline-offset-3 decoration-8 decoration-blue-400 dark:decoration-blue-600 sm:ml-4'>Digital <span className="block sm:hidden"> </span> Research Repository</span>
@@ -108,24 +127,28 @@ const Home = () => {
               View Latest Publications
             </Link>
             <div className="mt-6 flex space-x-2 justify-center lg:mt-0 lg:flex lg:justify-center">
-              <select 
-                value={selectedDocType} 
-                onChange={(e) => setSelectedDocType(e.target.value)} 
-                className="mr-4 p-2 border rounded lg:mr-0 lg:mb-4"
+              <select
+                value={selectedDocType}
+                onChange={(e) => setSelectedDocType(e.target.value)}
+                className="p-3 border border-gray-300 rounded-lg bg-gradient-to-r from-blue-100 to-blue-200 shadow-md hover:bg-gradient-to-r hover:from-blue-200 hover:to-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
               >
-                <option value=''>Document Type</option>
+                <option value="">Document Type</option>
                 {Object.keys(docTypeCounts).map((docType, index) => (
-                  <option key={index} value={docType}>{`${docType} (${docTypeCounts[docType]})`}</option>
+                  <option key={index} value={docType}>
+                    {`${docType} (${docTypeCounts[docType]})`}
+                  </option>
                 ))}
               </select>
-              <select 
-                value={selectedYear} 
-                onChange={(e) => setSelectedYear(e.target.value)} 
-                className="p-2 border rounded lg:mb-4"
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="p-3 border border-gray-300 rounded-lg bg-gradient-to-r from-green-100 to-green-200 shadow-md hover:bg-gradient-to-r hover:from-green-200 hover:to-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 ease-in-out"
               >
-                <option value=''>Publication Year</option>
+                <option value="">Publication Year</option>
                 {uniqueYears.map((year, index) => (
-                  <option key={index} value={year}>{year}</option>
+                  <option key={index} value={year}>
+                    {year}
+                  </option>
                 ))}
               </select>
             </div>
@@ -157,6 +180,7 @@ const Home = () => {
           />
         ))}
       </div>
+      <Charts chartsData={chartsData} />
       {filteredPapers.length > 0 && (
         <Pagination
           papersPerPage={papersPerPage}

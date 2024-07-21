@@ -44,7 +44,7 @@ const AdminPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('https://ndrr-chartsapi.onrender.com/api/charts');
+      const response = await axios.get('https://ndrr-charts-api.vercel.app/api/charts');
       setCharts(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       setError('Failed to fetch charts');
@@ -95,11 +95,11 @@ const AdminPage = () => {
     setError('');
     try {
       if (isEditing) {
-        await axios.put(`https://ndrr-chartsapi.onrender.com/api/charts/${editingChartId}`, form);
+        await axios.put(`https://ndrr-charts-api.vercel.app/api/charts/${editingChartId}`, form);
         setIsEditing(false);
         setEditingChartId('');
       } else {
-        await axios.post('https://ndrr-chartsapi.onrender.com/api/charts', form);
+        await axios.post('https://ndrr-charts-api.vercel.app/api/charts', form);
       }
       fetchCharts();
       setForm({
@@ -127,7 +127,7 @@ const AdminPage = () => {
     setLoading(true);
     setError('');
     try {
-      await axios.delete(`https://ndrr-chartsapi.onrender.com/api/charts/${chartId}`);
+      await axios.delete(`https://ndrr-charts-api.vercel.app/api/charts/${chartId}`);
       fetchCharts();
     } catch (err) {
       setError('Failed to delete chart');

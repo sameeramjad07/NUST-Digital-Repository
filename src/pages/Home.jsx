@@ -33,7 +33,7 @@ const Home = () => {
 
   const fetchChartsData = async () => {
     try {
-      const response = await axios.get('https://ndrr-chartsapi.onrender.com/api/charts');
+      const response = await axios.get('https://ndrr-charts-api.vercel.app/api/charts');
       setChartsData(response.data);
     } catch (error) {
       console.error('Failed to fetch charts data:', error);

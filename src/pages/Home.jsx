@@ -130,7 +130,7 @@ const Home = () => {
               <select
                 value={selectedDocType}
                 onChange={(e) => setSelectedDocType(e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg bg-gradient-to-r from-blue-100 to-blue-200 shadow-md hover:bg-gradient-to-r hover:from-blue-200 hover:to-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+                className="p-3 border border-blue-400 rounded-lg bg-slate-100 hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200 ease-in-out"
               >
                 <option value="">Document Type</option>
                 {Object.keys(docTypeCounts).map((docType, index) => (
@@ -142,7 +142,7 @@ const Home = () => {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg bg-gradient-to-r from-green-100 to-green-200 shadow-md hover:bg-gradient-to-r hover:from-green-200 hover:to-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 ease-in-out"
+                className="p-3 border border-blue-400 rounded-lg bg-slate-100 hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200 ease-in-out"
               >
                 <option value="">Publication Year</option>
                 {uniqueYears.map((year, index) => (
@@ -162,7 +162,7 @@ const Home = () => {
         ) : (
           <div className="flex flex-col items-center lg:flex-row lg:justify-center lg:w-full mt-6">
             <Link
-              to={`/latest-publications`}
+              to={`/latestpublications`}
               target="_blank"
               className="text-blue-500 bg-slate-100 hover:bg-slate-200 border border-blue-400 transition focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-md px-4 py-2"
             >

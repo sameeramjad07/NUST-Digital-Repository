@@ -8,18 +8,19 @@ const faqs = [
   { question: 'How can I access the research papers?', answer: 'You can access the research papers by browsing through our website and using the search functionalities.' },
   { question: 'How do I search for specific papers?', answer: 'You can use the search bar on our homepage to search for specific papers using keywords or authors.' },
   { question: 'Can I download the papers?', answer: 'Yes, you can download the papers in PDF format if the authors have made them available.' },
-  { question: 'How can I contribute to the repository?', answer: 'To contribute, please contact us through the provided email and submit your papers for review.' },
   { question: 'Is there a fee to access the papers?', answer: 'No, access to the research papers is completely free.' },
-  { question: 'How do I create an account?', answer: 'You do not need an account to access the papers. However, you can create an account to save your search preferences.' },
   { question: 'Who can I contact for support?', answer: 'For support, you can reach out to our help desk through the contact form on our website.' },
   { question: 'What types of papers are included?', answer: 'The repository includes conference papers, journal articles, and technical reports from various disciplines.' },
-  { question: 'Can I submit my own research?', answer: 'Yes, you can submit your research by following the submission guidelines on our website.' },
   { question: 'How often is the repository updated?', answer: 'The repository is updated regularly as new research is published and submitted.' },
   { question: 'What if I find a broken link?', answer: 'Please report any broken links through our contact form so we can fix them as soon as possible.' },
-  { question: 'How can I get involved with NUST Digital Research Repository?', answer: 'You can get involved by participating in our community, contributing research, or providing feedback.' },
-  { question: 'Where can I find more information about the research topics?', answer: 'More information about research topics can be found on our website under each research paper’s description.' },
+  { question: 'Where can I find more information about the research publication?', answer: 'More information about research publication can be found by visiting the document page on our website.' },
   { question: 'Are there any guidelines for using the research?', answer: 'Yes, please follow the citation guidelines provided with each paper to use the research appropriately.' },
+  { question: 'Is NUST Digital Research Repository free to use?', answer: 'Yes, it is free to use.' },
+  { question: 'Can we download the results of our search of papers?', answer: 'Yes, you can download the results of your search.' },
+  { question: 'How can we cite the paper?', answer: 'You can cite by clicking on the "Create Citation" button on any paper that you want to cite.' },
+  { question: 'How to visit the soft copy of the paper?', answer: 'The soft copy can be visited by following the weblink provided on the paper page.' }
 ];
+
 
 const Accordion = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);

@@ -10,9 +10,13 @@ const baseUrl = process.env.VITE_QALAM_BASE_URL;
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/',
   server: {
     proxy: {
       [qalamApi]: baseUrl,
-      } 
+      },
+    watch: {
+      usePolling: true,
+    } 
   },
 })

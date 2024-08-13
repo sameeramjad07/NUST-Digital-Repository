@@ -112,8 +112,7 @@ const Home = () => {
           <span className='underline underline-offset-3 decoration-8 decoration-blue-400 dark:decoration-blue-600 sm:ml-4'>Digital <span className="block sm:hidden"> </span> Research Repository</span>
         </h1>
         <p className="text-justify w-11/12 sm:w-2/3 md:w-full lg:w-full mb-6 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-gray-500 px-4 sm:px-8 md:px-16 lg:px-24 dark:text-gray-400">
-          Discover the wealth of academic knowledge hosted on the NUST Digital Research Repository. As the primary repository for research papers and scholarly articles from NUST University's esteemed professors and researchers, our platform offers unprecedented access to cutting-edge discoveries and insights. From groundbreaking studies to innovative findings, explore a diverse array of disciplines and contribute to the advancement of knowledge in your field. Join us in fostering collaboration and sharing ideas as we collectively push the boundaries of academic exploration.
-        </p>
+          Dive into a treasure trove of academic knowledge with the NUST Digital Research Repository. Our platform is the go-to resource for research papers and scholarly articles from NUST University's distinguished professors and researchers. Whether you're looking for groundbreaking studies or innovative insights, you'll find a diverse range of disciplines represented here. Explore cutting-edge discoveries, contribute to the advancement of your field, and be a part of a community dedicated to pushing the boundaries of academic exploration.</p>
         <SearchBar onResults={handleResults} />
       </div>
       <div className="mt-0 sm:mt-6 flex flex-col items-center lg:flex-row lg:justify-between">

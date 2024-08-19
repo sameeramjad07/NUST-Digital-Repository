@@ -5,7 +5,9 @@ import Footer from '../components/Footer';
 import PaperCard from '../components/PaperCard';
 import { TailSpin } from 'react-loader-spinner';
 
-const apiName = '/odoocms_api';
+const header = import.meta.env.VITE_QALAM_BASE_URL;
+const endpoint = import.meta.env.VITE_QALAM_API_NAME;
+const apiName = `${header}${endpoint}`;
 const qalamLatestAlias = import.meta.env.VITE_QALAM_ALIAS_LATEST;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 

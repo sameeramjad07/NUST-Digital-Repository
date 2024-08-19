@@ -6,7 +6,9 @@ import axios from 'axios';
 
 const sdgImages = import.meta.glob('/src/assets/sdgs/*.png', { eager: true });
 
-const apiName = '/odoocms_api';
+const header = import.meta.env.VITE_QALAM_BASE_URL;
+const endpoint = import.meta.env.VITE_QALAM_API_NAME;
+const apiName = `${header}${endpoint}`;
 const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 

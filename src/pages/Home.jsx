@@ -119,7 +119,7 @@ const Home = () => {
         {papers.length > 0 ? (
           <>
             <Link
-              to={`/latest-publications`}
+              to={`/latestpublications`}
               target="_blank"
               className="sm:ml-4 ml-0 mt-6 lg:mt-0 text-blue-500 bg-slate-100 hover:bg-slate-200 border border-blue-400 transition focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-md px-4 py-2"
             >

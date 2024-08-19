@@ -1,10 +1,6 @@
 {
     "routes": [
         {
-            "src": "/odoocms_api",
-            "dest": "https://qalam.nust.edu.pk"
-        },
-        {
             "src": "/static/(.*)",
             "dest": "/static/"
         },

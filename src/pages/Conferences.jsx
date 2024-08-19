@@ -4,7 +4,9 @@ import TopNav from '../components/TopNav';
 import Footer from '../components/Footer';
 import axios from 'axios';
 
-const apiName = '/odoocms_api';
+const header = import.meta.env.VITE_QALAM_BASE_URL;
+const endpoint = import.meta.env.VITE_QALAM_API_NAME;
+const apiName = `${header}${endpoint}`;
 const qalamConferenceAlias = import.meta.env.VITE_QALAM_ALIAS_CONFERENCE_IND;
 const qalamConferenceAuth = import.meta.env.VITE_QALAM_AUTH_CONFERENCE;
 

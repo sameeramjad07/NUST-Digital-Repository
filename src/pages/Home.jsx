@@ -179,7 +179,13 @@ const Home = () => {
           />
         ))}
       </div>
-      <Charts chartsData={chartsData} />
+      {papers.length == 0 && 
+      <div className='flex flex-col'>
+        <h1 className="underline underline-offset-2 decoration-4 decoration-blue-400 text-center mb-2 mt-4 text-2xl font-sans font-bold leading-7 sm:tracking-tight text-slate-700 sm:text-2xl md:text-4xl lg:text-4xl">
+          Nust Statistics
+        </h1>
+        <Charts chartsData={chartsData} />
+      </div>}
       {filteredPapers.length > 0 && (
         <Pagination
           papersPerPage={papersPerPage}

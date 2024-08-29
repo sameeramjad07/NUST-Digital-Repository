@@ -6,6 +6,7 @@ const PaperCard = ({ paper, index }) => {
   const [authorLinks, setAuthorLinks] = useState([]);
   const [showCitation, setShowCitation] = useState(false);
   const [isCitationCopied, setIsCitationCopied] = useState(false);
+  const [isBibTeXCopied, setIsBibTeXCopied] = useState(false); // For BibTeX citation
 
   const isConference = paper.conference !== null && paper.conference !== undefined;
 
@@ -18,20 +19,38 @@ const PaperCard = ({ paper, index }) => {
       const authors = paper.author_ids || paper.findet_ids;
       const links = authors.map((author) => {
         const name = author.name || author.pc_applicant_name;
-        if (author.affiliation && author.affiliation.toLowerCase() === 'nust' && author.faculty_student_author_compute) {
-          const parts = author.faculty_student_author_compute.split(' - ');
-          if (parts.length > 1) {
-            const code = parts[0];
-            return (
-              <a
-                key={author.id}
-                target="_blank"
-                href={`https://collaborate.nust.edu.pk/profile/${name.replace(' ', '%20')}/${code}`}
-                className="text-blue-700 hover:underline"
-              >
-                {name}
-              </a>
-            );
+        if (author.affiliation && author.affiliation.toLowerCase() === 'nust' || author.designation) {
+          if (author.faculty_student_author_compute) {
+            const parts = author.faculty_student_author_compute.split(' - ');
+            if (parts.length > 1) {
+              const code = parts[0];
+              return (
+                <a
+                  key={author.id}
+                  target="_blank"
+                  href={`https://collaborate.nust.edu.pk/profile/${name.replace(' ', '%20')}/${code}`}
+                  className="text-blue-700 hover:underline"
+                >
+                  {name}
+                </a>
+              );
+            }
+          }
+          if (author.fin_faculy_staff_id) {
+            const parts = author.fin_faculy_staff_id.split(' - ');
+            if (parts.length > 1) {
+              const code = parts[1];
+              return (
+                <a
+                  key={author.id}
+                  target="_blank"
+                  href={`https://collaborate.nust.edu.pk/profile/${name.replace(' ', '%20')}/${code}`}
+                  className="text-blue-700 hover:underline"
+                >
+                  {name}
+                </a>
+              );
+            }
           }
         }
         return name;
@@ -58,11 +77,21 @@ const PaperCard = ({ paper, index }) => {
     }
     return '';
   };
-  
+
+  const getAuthorsBibTeX = (paper) => {
+    const authors = paper.author_ids || paper.findet_ids || [];
+    if (authors.length > 0) {
+      return authors.map(author => formatAuthorName(author.name || author.pc_applicant_name)).join(' and ');
+    } else if (paper.all_author_compute) {
+      return paper.all_author_compute.split(',').map(author => formatAuthorName(author.trim())).join(' and ');
+    }
+    return '';
+  };
+
   const formattedAuthors = getAuthors(paper);
 
   const handleCopyCitation = () => {
-    const citationText = isConference 
+    const citationText = isConference
       ? `${formattedAuthors} ${paper.title_of_paper}, ${paper.discipline} (${paper.publication_year_compute}), ${paper.conference}`
       : `${formattedAuthors} ${paper.title}, ${paper.journal_title} (${paper.publication_year_compute}), ${paper.journal_info}`;
     navigator.clipboard.writeText(citationText)
@@ -74,6 +103,61 @@ const PaperCard = ({ paper, index }) => {
         console.error('Failed to copy citation: ', err);
       });
   };
+
+  const handleCopyBibTeX = () => {
+    const leadAuthor = getAuthors(paper);
+    let leadAuthorLastName = "";
+    if (leadAuthor) {
+      const nameParts = leadAuthor.split(', ');
+      if (nameParts.length > 0) {
+        leadAuthorLastName = nameParts[0].split(' ').pop().toLowerCase();
+      }
+    }
+  
+    const authors = getAuthorsBibTeX(paper);
+    const title = isConference ? paper.title_of_paper : paper.title
+    const publicationYear = paper.publication_year_compute;
+    const firstWordOfTitle = !isConference ? paper.title.split(' ')[0] : paper.title_of_paper.split(' ')[0];
+    const citationKey = `${leadAuthorLastName}${publicationYear}${firstWordOfTitle}`;
+    const journalInfo = !isConference ? paper.journal_info || '' : null;
+  
+    // Build the BibTeX entry
+    let bibtexCitation = `@article{${citationKey},\n`;
+    
+    if (title) {
+      bibtexCitation += `  title = {${title}},\n`;
+    }
+    if (authors) {
+      bibtexCitation += `  author = {${authors}},\n`;
+    }
+    if (!isConference && paper.journal_title && paper.journal_title.trim() !== '-' && paper.journal_title.trim() !== '') {
+      bibtexCitation += `  journal = {${paper.journal_title}},\n`;
+    }
+    if (isConference && paper.conference && paper.conference.trim() !== '-' && paper.conference.trim() !== '') {
+      bibtexCitation += `  conference = {${paper.conference}},\n`;
+    }
+    if (!isConference && journalInfo && journalInfo.trim() !== '-' && journalInfo.trim() !== '') {
+      bibtexCitation += `  journal info = {${journalInfo}},\n`;
+    }
+    if (publicationYear) {
+      bibtexCitation += `  year = {${publicationYear}},\n`;
+    }
+    if (!isConference && paper.publisher_name && paper.publisher_name.trim() !== '-' && paper.publisher_name.trim() !== '') {
+      bibtexCitation += `  publisher = {${paper.publisher_name}},\n`;
+    }
+    
+    bibtexCitation += '}';
+  
+    // Copy to clipboard
+    navigator.clipboard.writeText(bibtexCitation)
+      .then(() => {
+        setIsBibTeXCopied(true);
+        setTimeout(() => setIsBibTeXCopied(false), 2000); // Reset after 2 seconds
+      })
+      .catch(err => {
+        console.error('Failed to copy BibTeX citation: ', err);
+      });
+  };  
 
   return (
     <div className="p-4 sm:p-6 border-2 border-slate-400 rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-200 sm:mx-4">
@@ -135,23 +219,30 @@ const PaperCard = ({ paper, index }) => {
 
       {showCitation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Citation Details</h2>
-            <p className="mb-4">{isConference 
-              ? `${formattedAuthors} ${paper.title_of_paper}, ${paper.discipline} (${paper.publication_year_compute}), ${paper.conference}`
-              : `${formattedAuthors} ${paper.title}, ${paper.journal_title} (${paper.publication_year_compute}), ${paper.journal_info}`
-            }</p>
-            <button
-              onClick={handleCopyCitation}
-              className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-            >
-              {isCitationCopied ? 'Citation Copied' : 'Copy Citation'}
-            </button>
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
             <button
               onClick={() => setShowCitation(false)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+              className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-800 text-xl"
             >
-              Close
+              &times;
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Citation Details</h3>
+            <p className="mb-4">
+              {isConference
+                ? `${formattedAuthors} ${paper.title_of_paper}, ${paper.discipline} (${paper.publication_year_compute}), ${paper.conference}`
+                : `${formattedAuthors} ${paper.title}, ${paper.journal_title} (${paper.publication_year_compute}), ${paper.journal_info}`}
+            </p>
+            <button
+              onClick={handleCopyCitation}
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 mr-2"
+            >
+              {isCitationCopied ? 'Copied!' : 'Copy Citation'}
+            </button>
+            <button
+              onClick={handleCopyBibTeX}
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              {isBibTeXCopied ? 'Copied!' : 'Copy BibTeX'}
             </button>
           </div>
         </div>

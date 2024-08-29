@@ -48,6 +48,7 @@ const Conferences = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCitation, setShowCitation] = useState(false);
   const [isCitationCopied, setIsCitationCopied] = useState(false);
+  const [isBibTeXCopied, setIsBibTeXCopied] = useState(false); // For BibTeX citation
   const { conferenceId } = useParams();
   const navigate = useNavigate();
 
@@ -90,11 +91,38 @@ const Conferences = () => {
     return `${lastName}, ${initials}${initials ? '.' : ''}`;
   };
 
-  const formattedAuthors = conference?.all_author_compute
-    .split(',')
-    .map(author => formatAuthorName(author.trim()))
-    .join(', ')
-    .replace(/, ([^,]*)$/, ' $1');
+  const getAuthors = () => {
+    if (!conference) {
+      return '';
+    }
+    
+    const authors = conference.author_ids || conference.findet_ids || [];
+    if (authors.length > 0) {
+      return authors
+        .map(author => formatAuthorName(author.name || author.pc_applicant_name))
+        .join(', ')
+        .replace(/, ([^,]*)$/, ' $1');
+    } else if (conference.all_author_compute) {
+      return conference.all_author_compute
+        .split(',')
+        .map(author => formatAuthorName(author.trim()))
+        .join(', ')
+        .replace(/, ([^,]*)$/, ' $1');
+    }
+    return '';
+  };
+
+  const formattedAuthors = getAuthors();
+
+  const getAuthorsBibTeX = () => {
+    const authors = conference.author_ids || conference.findet_ids || [];
+    if (authors.length > 0) {
+      return authors.map(author => formatAuthorName(author.name || author.pc_applicant_name)).join(' and ');
+    } else if (conference.all_author_compute) {
+      return conference.all_author_compute.split(',').map(author => formatAuthorName(author.trim())).join(' and ');
+    }
+    return '';
+  };
 
   const handleCopyCitation = () => {
     const citationText = `${formattedAuthors} ${conference.title_of_paper}, ${conference.discipline} (${conference.publication_year_compute}), ${conference.conference}`;
@@ -105,6 +133,50 @@ const Conferences = () => {
       })
       .catch(err => {
         console.error('Failed to copy citation: ', err);
+      });
+  };
+
+  const handleCopyBibTeX = () => {
+    const leadAuthor = getAuthors();
+    let leadAuthorLastName = "";
+    if (leadAuthor) {
+      const nameParts = leadAuthor.split(', ');
+      if (nameParts.length > 0) {
+        leadAuthorLastName = nameParts[0].split(' ').pop().toLowerCase();
+      }
+    }
+  
+    const authors = getAuthorsBibTeX();
+    const title = conference.title_of_paper;
+    const publicationYear = conference.publication_year_compute;
+    const firstWordOfTitle = conference.title_of_paper.split(' ')[0];
+    const citationKey = `${leadAuthorLastName}${publicationYear}${firstWordOfTitle}`;
+  
+    // Build the BibTeX entry
+    let bibtexCitation = `@article{${citationKey},\n`;
+    
+    if (title) {
+      bibtexCitation += `  title = {${title}},\n`;
+    }
+    if (authors) {
+      bibtexCitation += `  author = {${authors}},\n`;
+    }
+    if (conference.conference && conference.conference.trim() !== '-' && conference.conference.trim() !== '') {
+      bibtexCitation += `  conference = {${conference.conference}},\n`;
+    }
+    if (publicationYear) {
+      bibtexCitation += `  year = {${publicationYear}},\n`;
+    }
+    bibtexCitation += '}';
+  
+    // Copy to clipboard
+    navigator.clipboard.writeText(bibtexCitation)
+      .then(() => {
+        setIsBibTeXCopied(true);
+        setTimeout(() => setIsBibTeXCopied(false), 2000); // Reset after 2 seconds
+      })
+      .catch(err => {
+        console.error('Failed to copy BibTeX citation: ', err);
       });
   };
 
@@ -191,25 +263,31 @@ const Conferences = () => {
         </button>
 
         {showCitation && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h2 className="text-xl font-bold mb-4">Citation Details</h2>
-              <p className="mb-4">{`${formattedAuthors} ${conference.title_of_paper}. ${conference.discipline} (${conference.publication_year_compute}). ${conference.conference}`}</p>
-              <button
-                onClick={handleCopyCitation}
-                className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-              >
-                {isCitationCopied ? 'Citation Copied' : 'Copy Citation'}
-              </button>
-              <button
-                onClick={() => setShowCitation(false)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
-              >
-                Close
-              </button>
-            </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+            <button
+              onClick={() => setShowCitation(false)}
+              className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-800 text-xl"
+            >
+              &times;
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Citation Details</h3>
+            <p className="mb-4">{`${formattedAuthors} ${conference.title_of_paper}. ${conference.discipline} (${conference.publication_year_compute}). ${conference.conference}`}</p>
+            <button
+              onClick={handleCopyCitation}
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 mr-2"
+            >
+              {isCitationCopied ? 'Copied!' : 'Copy Citation'}
+            </button>
+            <button
+              onClick={handleCopyBibTeX}
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              {isBibTeXCopied ? 'Copied!' : 'Copy BibTeX'}
+            </button>
           </div>
-        )}
+        </div>
+      )}
       </div>
       <Footer />
     </>

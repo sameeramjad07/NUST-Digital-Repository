@@ -50,6 +50,7 @@ const Publications = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCitation, setShowCitation] = useState(false);
   const [isCitationCopied, setIsCitationCopied] = useState(false);
+  const [isBibTeXCopied, setIsBibTeXCopied] = useState(false); // For BibTeX citation
   const { publicationId } = useParams();
   const navigate = useNavigate();
 
@@ -92,11 +93,38 @@ const Publications = () => {
     return `${lastName}, ${initials}${initials ? '.' : ''}`;
   };
 
-  const formattedAuthors = publication?.all_author_compute
-    .split(',')
-    .map(author => formatAuthorName(author.trim()))
-    .join(', ')
-    .replace(/, ([^,]*)$/, ' $1');
+  const getAuthors = () => {
+    if (!publication) {
+      return '';
+    }
+    
+    const authors = publication.author_ids || publication.findet_ids || [];
+    if (authors.length > 0) {
+      return authors
+        .map(author => formatAuthorName(author.name || author.pc_applicant_name))
+        .join(', ')
+        .replace(/, ([^,]*)$/, ' $1');
+    } else if (publication.all_author_compute) {
+      return publication.all_author_compute
+        .split(',')
+        .map(author => formatAuthorName(author.trim()))
+        .join(', ')
+        .replace(/, ([^,]*)$/, ' $1');
+    }
+    return '';
+  };
+
+  const formattedAuthors = getAuthors();
+
+  const getAuthorsBibTeX = () => {
+    const authors = publication.author_ids || publication.findet_ids || [];
+    if (authors.length > 0) {
+      return authors.map(author => formatAuthorName(author.name || author.pc_applicant_name)).join(' and ');
+    } else if (publication.all_author_compute) {
+      return publication.all_author_compute.split(',').map(author => formatAuthorName(author.trim())).join(' and ');
+    }
+    return '';
+  };
 
   const handleCopyCitation = () => {
     const citationText = `${formattedAuthors} ${publication.title}, ${publication.journal_title} (${publication.publication_year_compute}), ${publication.journal_info}`;
@@ -107,6 +135,58 @@ const Publications = () => {
       })
       .catch(err => {
         console.error('Failed to copy citation: ', err);
+      });
+  };
+
+  const handleCopyBibTeX = () => {
+    const leadAuthor = getAuthors();
+    let leadAuthorLastName = "";
+    if (leadAuthor) {
+      const nameParts = leadAuthor.split(', ');
+      if (nameParts.length > 0) {
+        leadAuthorLastName = nameParts[0].split(' ').pop().toLowerCase();
+      }
+    }
+  
+    const authors = getAuthorsBibTeX();
+    const title = publication.title
+    const publicationYear = publication.publication_year_compute;
+    const firstWordOfTitle = publication.title.split(' ')[0];
+    const citationKey = `${leadAuthorLastName}${publicationYear}${firstWordOfTitle}`;
+    const journalInfo = publication.journal_info;
+  
+    // Build the BibTeX entry
+    let bibtexCitation = `@article{${citationKey},\n`;
+    
+    if (title) {
+      bibtexCitation += `  title = {${title}},\n`;
+    }
+    if (authors) {
+      bibtexCitation += `  author = {${authors}},\n`;
+    }
+    if (publication.journal_title && publication.journal_title.trim() !== '-' && publication.journal_title.trim() !== '') {
+      bibtexCitation += `  journal = {${publication.journal_title}},\n`;
+    }
+    if (journalInfo && journalInfo.trim() !== '-' && journalInfo.trim() !== '') {
+      bibtexCitation += `  journal info = {${journalInfo}},\n`;
+    }
+    if (publicationYear) {
+      bibtexCitation += `  year = {${publicationYear}},\n`;
+    }
+    if (publication.publisher_name && publication.publisher_name.trim() !== '-' && publication.publisher_name.trim() !== '') {
+      bibtexCitation += `  publisher = {${publication.publisher_name}},\n`;
+    }
+    
+    bibtexCitation += '}';
+  
+    // Copy to clipboard
+    navigator.clipboard.writeText(bibtexCitation)
+      .then(() => {
+        setIsBibTeXCopied(true);
+        setTimeout(() => setIsBibTeXCopied(false), 2000); // Reset after 2 seconds
+      })
+      .catch(err => {
+        console.error('Failed to copy BibTeX citation: ', err);
       });
   };
 
@@ -157,7 +237,7 @@ const Publications = () => {
     <>
       <TopNav />
       <div className="container mx-auto px-4 py-8">
-        {publication.online_publication_date ? <i className='text-gray-500'>[Published on {publication.online_publication_date}]</i> : null }
+        {publication.online_publication_date ? <i className='text-gray-500'>[Published on {publication.publication_date}]</i> : null }
         <h1 className="text-3xl font-bold mb-4">{publication.title}</h1>
         <p className="text-gray-600 mb-4">
           {renderAuthors()} - {publication.publication_year_compute || 'N/A'}
@@ -203,25 +283,31 @@ const Publications = () => {
         </button>
 
         {showCitation && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h2 className="text-xl font-bold mb-4">Citation Details</h2>
-              <p className="mb-4">{`${formattedAuthors}${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
-              <button
-                onClick={handleCopyCitation}
-                className={`mr-2 px-4 py-2 rounded-lg transition-colors duration-200 mb-4 ${isCitationCopied ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-              >
-                {isCitationCopied ? 'Citation Copied' : 'Copy Citation'}
-              </button>
-              <button
-                onClick={() => setShowCitation(false)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
-              >
-                Close
-              </button>
-            </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+            <button
+              onClick={() => setShowCitation(false)}
+              className="absolute top-0 right-0 mt-4 mr-4 text-gray-600 hover:text-gray-800 text-xl"
+            >
+              &times;
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Citation Details</h3>
+            <p className="mb-4">{`${formattedAuthors}${publication.title}. ${publication.journal_title}. (${publication.publication_year_compute}). ${publication.journal_info}`}</p>
+            <button
+              onClick={handleCopyCitation}
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 mr-2"
+            >
+              {isCitationCopied ? 'Copied!' : 'Copy Citation'}
+            </button>
+            <button
+              onClick={handleCopyBibTeX}
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              {isBibTeXCopied ? 'Copied!' : 'Copy BibTeX'}
+            </button>
           </div>
-        )}
+        </div>
+      )}
       </div>
       <Footer />
     </>

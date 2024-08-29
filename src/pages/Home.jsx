@@ -105,14 +105,15 @@ const Home = () => {
     <div className="flex flex-col min-h-screen">
       <TopNav />
       <div className="mt-6 flex flex-col items-center flex-grow">
-        <img src={ndrrLogo} className='w-52' alt="NDRR Logo" />
+        <img src={ndrrLogo} className='w-80' alt="NDRR Logo" />
         {/* <h3 className='text-center mt-6 text-xl leading-none tracking-tight text-gray-600 md:text-2xl lg:text-3xl'>Welcome to the</h3> */}
         <h1 className="text-center mt-2 mb-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl md:text-5xl lg:text-6xl">
           NUST{' '}
           <span className='underline underline-offset-3 decoration-8 decoration-blue-400 dark:decoration-blue-600 sm:ml-4'>Digital <span className="block sm:hidden"> </span> Research Repository</span>
         </h1>
-        <p className="text-justify w-11/12 sm:w-2/3 md:w-full lg:w-full mb-6 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-gray-500 px-4 sm:px-8 md:px-16 lg:px-24 dark:text-gray-400">
-          Dive into a treasure trove of academic knowledge with the NUST Digital Research Repository. Our platform is the go-to resource for research papers and scholarly articles from NUST University's distinguished professors and researchers. Whether you're looking for groundbreaking studies or innovative insights, you'll find a diverse range of disciplines represented here. Explore cutting-edge discoveries, contribute to the advancement of your field, and be a part of a community dedicated to pushing the boundaries of academic exploration.</p>
+        <p className="text-justify mt-2 w-11/12 sm:w-2/3 md:w-full lg:w-full mb-8 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-slate-500 px-4 sm:px-8 md:px-16 lg:px-24 ">
+        This platform is the go-to resource for research papers and scholarly articles from NUST University's distinguished professors and researchers. Whether you're looking for groundbreaking studies or innovative insights, you'll find a diverse range of disciplines represented here
+        </p>
         <SearchBar onResults={handleResults} />
       </div>
       <div className="mt-0 sm:mt-6 flex flex-col items-center lg:flex-row lg:justify-between">

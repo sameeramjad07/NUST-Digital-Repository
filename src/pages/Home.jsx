@@ -111,7 +111,7 @@ const Home = () => {
           NUST{' '}
           <span className='underline underline-offset-3 decoration-8 decoration-blue-400 dark:decoration-blue-600 sm:ml-4'>Digital <span className="block sm:hidden"> </span> Research Repository</span>
         </h1>
-        <p className="text-justify mt-2 w-11/12 sm:w-2/3 md:w-full lg:w-full mb-8 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-slate-500 px-4 sm:px-8 md:px-16 lg:px-24 ">
+        <p className="text-center mt-2 w-11/12 sm:w-2/3 md:w-full lg:w-full mb-8 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-slate-500 px-4 sm:px-8 md:px-16 lg:px-24 ">
         This platform is the go-to resource for research papers and scholarly articles from NUST University's distinguished professors and researchers. Whether you're looking for groundbreaking studies or innovative insights, you'll find a diverse range of disciplines represented here
         </p>
         <SearchBar onResults={handleResults} />

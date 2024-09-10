@@ -76,7 +76,7 @@ const LatestPublications = () => {
         <h1 className="text-center text-4xl font-extrabold leading-tight tracking-tight text-gray-900 mb-4 mt-2 sm:text-5xl md:text-5xl lg:text-6xl">
           Latest Publications
         </h1>
-        <p className="text-justify w-11/12 sm:w-2/3 md:w-full lg:w-full mb-6 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-gray-500 px-4 sm:px-8 md:px-16 lg:px-24 dark:text-gray-400">
+        <p className="text-center w-11/12 sm:w-2/3 md:w-full lg:w-full mb-6 text-base sm:text-lg md:text-lg lg:text-xl font-normal text-gray-500 px-4 sm:px-8 md:px-16 lg:px-24 dark:text-gray-400">
           Our Latest Research Publications from the current year. Stay up-to-date with the latest research and discoveries from NUST University's esteemed professors and researchers.
         </p>
         {loading ? (

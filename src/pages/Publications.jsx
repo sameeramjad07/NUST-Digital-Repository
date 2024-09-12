@@ -9,7 +9,7 @@ const sdgImages = import.meta.glob('/src/assets/sdgs/*.png', { eager: true });
 const header = import.meta.env.VITE_QALAM_BASE_URL;
 const endpoint = import.meta.env.VITE_QALAM_API_NAME;
 const apiName = `${header}${endpoint}`;
-const qalamAlias = import.meta.env.VITE_QALAM_ALIAS;
+const qalamAlias = import.meta.env.VITE_QALAM_ALIAS_JOURNAL_IND;
 const qalamAuth = import.meta.env.VITE_QALAM_AUTH;
 
 const fetchPublicationDetails = async (publicationId) => {
@@ -21,17 +21,17 @@ const fetchPublicationDetails = async (publicationId) => {
         alias: qalamAlias,
         auth: qalamAuth,
         rows: 1000,
-        title: decodedPublicationId // Using publicationId as title for the search
+        id: decodedPublicationId // Using publicationId as title for the search
       }
     });
 
-    console.log('API response:', response.data.ric_expert_portal_journal_pub_json_data);
+    console.log('API response:', response.data.ric_expert_portal_journal_pub_four_json_data);
     
     // Extract the publications array from the response
-    const publicationsArray = response.data.ric_expert_portal_journal_pub_json_data;
+    const publicationsArray = response.data.ric_expert_portal_journal_pub_four_json_data;
 
     // Find the specific publication by exact title match
-    const publicationData = publicationsArray.find(pub => pub.title === publicationId);
+    const publicationData = publicationsArray.find(pub => pub.id === Number(publicationId));
     if (publicationData) {
       console.log('Publication found:', publicationData);
       return publicationData;
